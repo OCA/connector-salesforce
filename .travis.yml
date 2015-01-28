@@ -20,14 +20,11 @@ virtualenv:
 
 install:
   - pip install simple-salesforce
+  - git clone https://github.com/OCA/server-tools ${HOME}/server-tools -b ${VERSION}
+  - git clone https://github.com/OCA/connector ${HOME}/connector -b ${VERSION}
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
-  - travis_install_nightly ${VERSION}
-  - pip install coveralls flake8
-  - pip install magento
-  - pip install beautifulsoup4
-  - git clone https://github.com/OCA/connector ${HOME}/connector -b 7.0
-  - printf '[options]\n\nrunning_env = dev' > ${HOME}/.openerp_serverrc
+  - travis_install_nightly
 
 script:
   - travis_run_flake8
