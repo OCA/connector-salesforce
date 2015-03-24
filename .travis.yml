@@ -3,8 +3,8 @@ python:
   - "2.7"
 
 env:
-  - VERSION="7.0" ODOO_REPO="odoo/odoo"
-  - VERSION="7.0" ODOO_REPO="OCA/OCB"
+  - VERSION="8.0" ODOO_REPO="odoo/odoo"
+  - VERSION="8.0" ODOO_REPO="OCA/OCB"
 
 virtualenv:
   system_site_packages: true
@@ -16,7 +16,7 @@ install:
   - pip install coveralls flake8
   - sudo pip install magento
   - sudo pip install beautifulsoup4
-  - git clone https://github.com/OCA/connector ${HOME}/connector -b 7.0
+  - git clone https://github.com/OCA/connector ${HOME}/connector -b ${VERSION}
   - printf '[options]\n\nrunning_env = dev' > ${HOME}/.openerp_serverrc
 
 script:
