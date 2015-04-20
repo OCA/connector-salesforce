@@ -39,7 +39,9 @@ def export_sf_product(session, model_name, record_id, vals=None):
     :record_id: The id of the binding model record
     :type record_id: int or long
     """
-    record = session.browse(model_name, record_id)
+    record = session.env[model_name].browse(
+        record_id
+    )
     if record.backend_id.sf_product_master == 'erp':
         delay_export(session, model_name, record_id)
 
@@ -61,7 +63,7 @@ def deactivate_product(session, model_name, record_id):
     :type record_id: int or long
     """
 
-    record = session.browse(model_name, record_id)
+    record = session.env[model_name].browse(record_id)
     if record.backend_id.sf_product_master == 'erp':
         delay_deactivate(session, model_name, record_id)
 
@@ -81,17 +83,18 @@ def create_product_binding(session, model_name, record_id, vals=None):
     :type record_id: int or long
     """
 
-    record = session.browse(model_name, record_id)
+    record = session.env[model_name].browse(record_id)
     sf_product_model = 'connector.salesforce.product'
     backend_model = 'connector.salesforce.backend'
-    backend_ids = session.search(backend_model, [])
+    backend_ids = session.env[backend_model].search([])
     if not record.sale_ok or not record.active:
         return
-    for backend in session.browse(backend_model, backend_ids):
+    for backend in session.env[backend_model].browse(backend_ids):
         if backend.sf_product_master == 'erp':
-            session.create(sf_product_model,
-                           {'backend_id': backend.id,
-                            'openerp_id': record_id})
+            session.env[sf_product_model].create(
+                {'backend_id': backend.id,
+                 'openerp_id': record_id}
+            )
 
 
 @on_record_write(model_names='product.product')
@@ -111,8 +114,8 @@ def export_product(session, model_name, record_id, vals=None):
     """
     sf_product_model = 'connector.salesforce.product'
     backend_model = 'connector.salesforce.backend'
-    backend_ids = session.search(backend_model, [])
-    for backend in session.browse(backend_model, backend_ids):
+    backend_ids = session.env[backend_model].search([])
+    for backend in session.env[backend_model].browse(backend_ids):
         if backend.sf_product_master == 'erp':
             conn_env = backend.get_connector_environment(
                 sf_product_model

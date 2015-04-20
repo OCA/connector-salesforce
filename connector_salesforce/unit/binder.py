@@ -43,21 +43,22 @@ class SalesforceBinder(Binder):
                  to the binding record
         :rtype: int
         """
-        with self.session.change_context({'active_test': False}):
-            binding_ids = self.session.search(
-                self.model._name,
-                [('salesforce_id', '=', salesforce_id),
-                 ('backend_id', '=', self.backend_record.id)],
 
-            )
+        model = self.session.env[self.model._name]
+        binding_ids = model.with_context(active_search=False).search(
+            [('salesforce_id', '=', salesforce_id),
+                ('backend_id', '=', self.backend_record.id)],
+
+        )
         if not binding_ids:
             return None
         assert len(binding_ids) == 1, "Several records found: %s" % binding_ids
         binding_id = binding_ids[0]
         if unwrap:
-            return self.session.read(self.model._name,
-                                     binding_id,
-                                     ['openerp_id'])['openerp_id'][0]
+            return self.session.env[self.model._name].read(
+                binding_id,
+                ['openerp_id']
+            )['openerp_id'][0]
         else:
             return binding_id
 
@@ -69,9 +70,10 @@ class SalesforceBinder(Binder):
 
         :return: external code of `binding_id` or None
         """
-        sf_record = self.session.read(self.model._name,
-                                      binding_id,
-                                      ['salesforce_id'])
+        sf_record = self.session.env[self.model._name].read(
+            binding_id,
+            ['salesforce_id']
+        )
         if not sf_record:
             return None
         return sf_record['salesforce_id']
@@ -84,8 +86,7 @@ class SalesforceBinder(Binder):
 
         :return: external binding id for `record_id` or None
         """
-        sf_id = self.session.search(
-            self.model._name,
+        sf_id = self.session.env[self.model._name].search(
             [
                 ('backend_id', '=', self.backend_record.id),
                 ('openerp_id', '=', record_id)

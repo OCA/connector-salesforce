@@ -252,7 +252,7 @@ class SalesforceBackend(orm.Model):
         :type model_name: str
 
         :return: a connector environment related to model and current backend
-        :rtype: :py:class:``connector.Environment``
+        :rtype: :py:class:``connector.ConnectorEnvironment``
 
         """
         backend_id = self._manage_ids(ids)
@@ -262,7 +262,7 @@ class SalesforceBackend(orm.Model):
             context
         )
         backend = self.browse(cr, uid, backend_id, context=context)
-        env = connector.Environment(backend, session, model_name)
+        env = connector.ConnectorEnvironment(backend, session, model_name)
         return env
 
     def _get_oauth2_handler(self, cr, uid, ids, context=None):

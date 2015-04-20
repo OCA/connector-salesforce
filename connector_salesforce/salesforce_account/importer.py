@@ -47,7 +47,8 @@ class SalesforceAccountImporter(SalesforceImportSynchronizer):
             self.salesforce_record,
             binding_id,
         )
-        self.session.write(self._model_name, [binding_id], shipping_add_data)
+        self.session.env[self._model_name].write([binding_id],
+                                                 shipping_add_data)
 
 
 @salesforce_backend
@@ -115,8 +116,7 @@ class SalesforceAccountMapper(AddressMapper, PriceMapper):
             raise MappingError(
                 'No binding_id when mapping shipping address'
             )
-        current_partner = self.session.browse(
-            self._model_name,
+        current_partner = self.session.env['self._model_name'].browse(
             binding_id,
         )
         shipp_id = None
@@ -125,21 +125,18 @@ class SalesforceAccountMapper(AddressMapper, PriceMapper):
         if any(record[field] for field in shipp_fields):
             if current_partner.sf_shipping_partner_id:
                 shipp_id = current_partner.sf_shipping_partner_id.id
-                self.session.write(
-                    'res.partner',
+                self.session.env['res.partner'].write(
                     [current_partner.sf_shipping_partner_id.id],
                     self._prepare_shipp_addresse_data(record, current_partner)
                 )
             else:
-                shipp_id = self.session.create(
-                    'res.partner',
+                shipp_id = self.session.env['res.partner'].create(
                     self._prepare_shipp_addresse_data(record, current_partner)
                 )
         else:
             shipp_id = False
             if current_partner.sf_shipping_partner_id:
-                self.session.write(
-                    'res.partner',
+                self.session.env['res.partner'].write(
                     [current_partner.sf_shipping_partner_id.id],
                     {'active': False}
                 )
@@ -188,8 +185,8 @@ class SalesforceAccountMapper(AddressMapper, PriceMapper):
                     self.backend_record.name
                 )
             )
-        price_list_version_record = self.session.browse(
-            'product.pricelist.version',
+        pl_model = 'product.pricelist.version'
+        price_list_version_record = self.session.env[pl_model].browse(
             price_list_version_id
         )
         return {'property_product_pricelist':

@@ -34,7 +34,9 @@ def delay_export(session, model_name, record_id):
     :record_id: The id of the binding model record
     :type record_id: int or long
     """
-    record = session.browse(model_name, record_id)
+    record = session.env[model_name].browse(
+        record_id
+    )
     export_record.delay(
         session,
         model_name,
@@ -57,7 +59,9 @@ def delay_deactivate(session, model_name, record_id):
     :record_id: The id of the binding model record
     :type record_id: int or long
     """
-    record = session.browse(model_name, record_id)
+    record = session.env[model_name].browse(
+        record_id
+    )
     deactivate_record.delay(
         session,
         model_name,

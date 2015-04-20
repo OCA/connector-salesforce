@@ -148,8 +148,7 @@ class SalesforceContactMapper(AddressMapper):
             raise MappingError(
                 'No Account (parent partner) imported for Contact %s' % record
             )
-        parent = self.session.browse(
-            'connector.salesforce.account',
+        parent = self.session.env['connector.salesforce.account'].browse(
             parent_id
         )
         return {'parent_id': parent.openerp_id.id}

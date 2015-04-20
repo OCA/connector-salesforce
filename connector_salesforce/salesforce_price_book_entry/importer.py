@@ -51,7 +51,7 @@ class SalesforcePriceBookEntryImporter(SalesforceImportSynchronizer):
         """
         assert self.salesforce_id
         entry_id = self.binder.to_openerp(self.salesforce_id)
-        self.session.unlink(self.model._name, [entry_id])
+        self.session.env[self.model._name].unlink([entry_id])
 
     def _before_import(self):
         """Hook called before Salesforce entry import

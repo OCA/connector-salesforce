@@ -85,8 +85,7 @@ class SalesforceExportSynchronizer(ExportSynchronizer):
         :rtype: :py:class:`openerp.osv.orm.BrowseRecord`
         """
         assert self.binding_id
-        return self.session.browse(
-            self._model_name,
+        return self.session.env[self._model_name].browse(
             self.binding_id
         )
 
@@ -202,13 +201,11 @@ class SalesforceBatchExportSynchronizer(ExportSynchronizer):
         :rtype: list
         """
         if not date:
-            return self.session.search(
-                self._model_name,
+            return self.session.env[self._model_name].search(
                 []
             )
         else:
-            return self.session.search(
-                self._model_name,
+            return self.session.env[self._model_name].search(
                 ['|',
                  ('salesforce_sync_date', '<', date),
                  ('salesforce_sync_date', '=', False)]
@@ -269,8 +266,7 @@ def batch_export(session, model_name, backend_id, date=False):
     :type date: str
     """
 
-    backend = session.browse(
-        'connector.salesforce.backend',
+    backend = session.env['connector.salesforce.backend'].browse(
         backend_id
     )
     connector_env = backend.get_connector_environment(model_name)
@@ -295,8 +291,7 @@ def delayed_batch_export(session, model_name, backend_id, date=False):
     :param date: Odoo date string to do past lookup
     :type date: str
     """
-    backend = session.browse(
-        'connector.salesforce.backend',
+    backend = session.env['connector.salesforce.backend'].browse(
         backend_id
     )
     connector_env = backend.get_connector_environment(model_name)
@@ -321,8 +316,7 @@ def export_record(session, model_name, backend_id, binding_id):
     :param binding_id: the id of the Odoo record to export
     :type binding_id: int or long
     """
-    backend = session.browse(
-        'connector.salesforce.backend',
+    backend = session.env['connector.salesforce.backend'].browse(
         backend_id
     )
     connector_env = backend.get_connector_environment(model_name)
@@ -347,8 +341,7 @@ def deactivate_record(session, model_name, backend_id, binding_id):
     :param binding_id: the id of the Odoo record to export
     :type binding_id: int or long
     """
-    backend = session.browse(
-        'connector.salesforce.backend',
+    backend = session.env['connector.salesforce.backend'].browse(
         backend_id
     )
     connector_env = backend.get_connector_environment(model_name)

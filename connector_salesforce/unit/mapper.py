@@ -31,8 +31,7 @@ class AddressMapper(ImportMapper):
         state = record.get(state_key)
         if not state:
             return False
-        state_id = self.session.search(
-            'res.country.state',
+        state_id = self.session.env['res.country.state'].search(
             [('name', '=', state)],
             limit=1,
         )
@@ -41,8 +40,7 @@ class AddressMapper(ImportMapper):
         else:
             country_id = self._country_id(record, country_key)
             if country_id:
-                return self.session.create(
-                    'res.country.state',
+                return self.session.env['res.country.state'].create(
                     {'name': state,
                      'code': state[0:3],
                      'country_id': country_id}
@@ -54,8 +52,7 @@ class AddressMapper(ImportMapper):
         country_code = record.get(country_key)
         if not country_code:
             return False
-        country_id = self.session.search(
-            'res.country',
+        country_id = self.session.env['res.country'].search(
             [('code', '=', country_code)]
         )
         # we tolerate the fact that country is null
@@ -81,8 +78,7 @@ class AddressMapper(ImportMapper):
         title = record.get(title_key)
         if not title:
             return False
-        title_id = self.session.search(
-            'res.partner.title',
+        title_id = self.session.env['res.partner.title'].search(
             [('name', '=', title)],
         )
         if len(title_id) > 1:
@@ -91,8 +87,7 @@ class AddressMapper(ImportMapper):
             )
         if title_id:
             return title_id[0]
-        return self.session.create(
-            'res.partner.title',
+        return self.session.env['res.partner.title'].create(
             {'name': title}
         )
 
@@ -106,8 +101,7 @@ class PriceMapper(ImportMapper):
             raise MappingError(
                 'No currency Given for: %s' % record
             )
-        currency_id = self.session.search(
-            'res.currency',
+        currency_id = self.session.env['res.currency'].search(
             [('name', '=ilike', currency_iso_code)]
         )
         if not currency_id:

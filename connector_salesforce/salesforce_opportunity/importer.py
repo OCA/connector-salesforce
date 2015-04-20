@@ -66,7 +66,7 @@ class SalesforceOpportunityImporter(SalesforceImportSynchronizer):
         """Hook called after Salesforce opportunity import
         To automatically trigger opportunity items import
         """
-        record = self.session.browse(
+        record = self.session.env[self._model_name].browse(
             self._model_name,
             binding_id,
         )
@@ -176,8 +176,7 @@ class SalesforceOpportunityMapper(PriceMapper):
                     self.backend_record.name
                 )
             )
-        price_list_version_record = self.session.browse(
-            'product.pricelist.version',
+        price_list_version_record = self.session.env['product.pricelist.version'].browse(
             price_list_version_id
         )
         return {'pricelist_id': price_list_version_record.pricelist_id.id}
@@ -203,8 +202,7 @@ class SalesforceOpportunityMapper(PriceMapper):
             raise MappingError(
                 'Account %s does not exist' % record['AccountId']
             )
-        account = self.session.browse(
-            'connector.salesforce.account',
+        account = self.session.env['connector.salesforce.account'].browse(
             account_id
         )
         partner_shipping_id = account.openerp_id.id
@@ -226,6 +224,8 @@ class SalesforceOpportunityMapper(PriceMapper):
         # We do not want to depends on connector ecommerce
         # only to have access to existing SaleOrderMapper
         # So we run `onchange` on a simplified manner
+
+        # we use old api to avoid compatibility issues
         so_model = self.session.pool['sale.order']
         changed_values = so_model.onchange_partner_id(
             self.session.cr,
@@ -331,8 +331,7 @@ class SalesforceOpportunityLineItemMapper(PriceMapper):
             raise MappingError(
                 'Product is not available in ERP for record %s' % record
             )
-        bind_product = self.session.browse(
-            'connector.salesforce.product',
+        bind_product = self.session.env['connector.salesforce.product'].browse(
             bind_product_id
         )
         return {'product_id': bind_product.openerp_id.id}
@@ -370,8 +369,7 @@ class SalesforceOpportunityLineItemMapper(PriceMapper):
             raise MappingError(
                 'No Opportunity for item %s' % record
             )
-        record = self.session.browse(
-            'connector.salesforce.opportunity',
+        record = self.session.env['connector.salesforce.opportunity'].browse(
             bind_opportunity_id
         )
         return {'order_id': record.openerp_id.id}
@@ -384,8 +382,7 @@ class SalesforceOpportunityLineItemMapper(PriceMapper):
         # only to have access to existing SaleOrderMapper
         # So we run `onchange` on a simplified manner
         so_line_model = self.session.pool['sale.order.line']
-        sale_order = self.session.browse(
-            'sale.order',
+        sale_order = self.session.env['sale.order'].browse(
             values['order_id']
         )
         changed_values = so_line_model.product_id_change(

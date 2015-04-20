@@ -56,7 +56,7 @@ class SalesforceImportSynchronizer(ImportSynchronizer):
         :return: the create id of the Odoo binding
         :rtype: int or long
         """
-        return self.session.create(self.model._name, data)
+        return self.session.env[self.model._name].create(data)
 
     def _to_deactivate(self):
         """Hook to check if record must be deactivated"""
@@ -78,9 +78,10 @@ class SalesforceImportSynchronizer(ImportSynchronizer):
                 'custom _deactivate must be implemented'
             )
         current_id = self.binder.to_openerp(self.salesforce_id)
-        self.session.write(self.model._name,
-                           [current_id],
-                           {'active': False})
+        self.session.env[self.model._name].write(
+            [current_id],
+            {'active': False}
+        )
 
     def _get_record(self, raise_error=False):
         """Return a dict representation of a currently
@@ -147,7 +148,7 @@ class SalesforceImportSynchronizer(ImportSynchronizer):
         :param data: mapped dict of data to be used by
                      :py:meth:``models.Model.create``
         """
-        self.session.write(self.model._name, binding_id, data)
+        self.session.env[self.model._name].write(binding_id, data)
 
     def _validate_data(self, data):
         """ Check if the values to import are correct
@@ -300,8 +301,7 @@ def batch_import(session, model_name, backend_id, date=False):
     :param date: Odoo date string to do past lookup
     :type date: str
     """
-    backend = session.browse(
-        'connector.salesforce.backend',
+    backend = session.env['connector.salesforce.backend'].browse(
         backend_id
     )
     connector_env = backend.get_connector_environment(model_name)
@@ -326,8 +326,7 @@ def delayed_batch_import(session, model_name, backend_id, date=False):
     :param date: Odoo date string to do past lookup
     :type date: str
     """
-    backend = session.browse(
-        'connector.salesforce.backend',
+    backend = session.env['connector.salesforce.backend'].browse(
         backend_id
     )
     connector_env = backend.get_connector_environment(model_name)
@@ -352,8 +351,7 @@ def import_record(session, model_name, backend_id, salesforce_id):
     :param salesforce_id: the uuid of Salesforce record
     :type binding_id: str
     """
-    backend = session.browse(
-        'connector.salesforce.backend',
+    backend = session.env['connector.salesforce.backend'].browse(
         backend_id
     )
     connector_env = backend.get_connector_environment(model_name)
@@ -380,8 +378,7 @@ def deactivate_record(session, model_name, backend_id, salesforce_id):
     :param salesforce_id: the uuid of Salesforce record
     :type binding_id: str
     """
-    backend = session.browse(
-        'connector.salesforce.backend',
+    backend = session.env['connector.salesforce.backend'].browse(
         backend_id
     )
     connector_env = backend.get_connector_environment(model_name)
