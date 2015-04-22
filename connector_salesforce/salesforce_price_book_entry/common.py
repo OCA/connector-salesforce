@@ -18,23 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp.osv import orm, fields
+from openerp import models, fields
 from ..unit.binder import SalesforceBinder
 
 
-class SalesforcePriceBookEntry(orm.Model):
+class SalesforcePriceBookEntry(models.Model):
     _inherit = 'salesforce.binding'
     _inherits = {'product.pricelist.item': 'openerp_id'}
     _name = 'connector.salesforce.pricebook.entry'
     _description = 'Import SF Price Book entry into product.pricelist.item'
 
-    _columns = {
-        'openerp_id': fields.many2one('product.pricelist.item',
-                                      string='Price Item',
-                                      required=True,
-                                      select=True,
-                                      ondelete='restrict'),
-    }
+    openerp_id = fields.Many2one('product.pricelist.item',
+                                 string='Price Item',
+                                 required=True,
+                                 select=True,
+                                 ondelete='restrict')
 
     _sql_constraints = [
         ('sf_id_uniq', 'unique(backend_id, salesforce_id)',

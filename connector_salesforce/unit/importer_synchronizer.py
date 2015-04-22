@@ -38,7 +38,7 @@ class SalesforceImportSynchronizer(ImportSynchronizer):
         self.salesforce_id = None
         self.salesforce_record = None
 
-    def _after_import(self, binding_id):
+    def _after_import(self, binding):
         """ Hook called after the import"""
         return
 
@@ -56,7 +56,7 @@ class SalesforceImportSynchronizer(ImportSynchronizer):
         :return: the create id of the Odoo binding
         :rtype: int or long
         """
-        return self.session.env[self.model._name].create(data)
+        return self.model.create(data)
 
     def _to_deactivate(self):
         """Hook to check if record must be deactivated"""
@@ -69,19 +69,14 @@ class SalesforceImportSynchronizer(ImportSynchronizer):
         it will raise a :py:class:`NotImplementedError`
         """
         assert self.salesforce_id
-        model = self.session.pool[self.model._name]
-        cols = set(model._columns)
-        cols.update(model._inherit_fields)
+        cols = set(self.model._fields)
         if 'active' not in cols:
             raise NotImplementedError(
                 'Model %s does not have an active field. '
                 'custom _deactivate must be implemented'
             )
         current_id = self.binder.to_openerp(self.salesforce_id)
-        self.session.env[self.model._name].write(
-            [current_id],
-            {'active': False}
-        )
+        self.model.browse(current_id).write({'active': False})
 
     def _get_record(self, raise_error=False):
         """Return a dict representation of a currently
@@ -138,17 +133,18 @@ class SalesforceImportSynchronizer(ImportSynchronizer):
         """
         return ImportSkipReason(should_skip=False, reason=None)
 
-    def _update(self, binding_id, data):
+    def _update(self, binding, data):
         """Implement the update of a binding record
         that is already existing in Odoo
 
-        :param binding_id: the id of the Odoo record to export
-        :type binding_id: int or long
+        :param binding: the Odoo record to export
+        :type binding: RecordSet
 
         :param data: mapped dict of data to be used by
                      :py:meth:``models.Model.create``
         """
-        self.session.env[self.model._name].write(binding_id, data)
+        binding.ensure_one()
+        binding.write(data)
 
     def _validate_data(self, data):
         """ Check if the values to import are correct
@@ -162,37 +158,38 @@ class SalesforceImportSynchronizer(ImportSynchronizer):
         # we may want to return an NotImplementedError
         return
 
-    def _import(self, binding_id):
+    def _import(self, binding):
         """Try Import or update a binding record from Salesforce using REST API
-        :param binding_id: the current binding id in Odoo
-        :type binding_id: int or long or None
+        :param binding: the current binding record in Odoo
+        :type binding: RecordSet
         """
         record_mapper = self.mapper.map_record(self.salesforce_record)
-        if binding_id:
+        if binding:
+            binding.ensure_one()
             # optimisation trick to avoid lookup binding
             data = self._map_data_for_update(
                 record_mapper,
-                binding_id=binding_id,
+                binding=binding,
             )
             self._validate_data(data)
-            self._update(binding_id, data)
+            self._update(binding, data)
         else:
             data = self._map_data_for_create(
                 record_mapper,
-                binding_id=binding_id,
+                binding=binding,
                 backend_record=self.backend_record
             )
             self._validate_data(data)
-            binding_id = self._create(data)
-        self.binder.bind(self.salesforce_id, binding_id)
-        self._after_import(binding_id)
+            binding = self._create(data)
+        self.binder.bind(self.salesforce_id, binding)
+        self._after_import(binding)
 
     def run(self, salesforce_id, force_deactivate=False):
         """Try to import or update a record on Salesforce using REST API
         call required hooks and bind the record
 
         :param salesforce_id: the current Salesforce UUID to import
-        :type binding_id: str
+        :type salesforce_id: str
 
         :param force_deactivate: If set to True it will force deactivate
                            without calling _to_deactivate
@@ -216,9 +213,11 @@ class SalesforceImportSynchronizer(ImportSynchronizer):
             self._deactivate()
             return
         self._before_import()
-        binding_id = self.binder.to_openerp(self.salesforce_id)
+        binding = self.binder.to_openerp(self.salesforce_id)
+        if binding:
+            binding.ensure_one()
         # calls _after_import
-        self._import(binding_id)
+        self._import(binding)
 
 
 class SalesforceBatchSynchronizer(ImportSynchronizer):
@@ -349,7 +348,7 @@ def import_record(session, model_name, backend_id, salesforce_id):
     :type backend_id: id or long
 
     :param salesforce_id: the uuid of Salesforce record
-    :type binding_id: str
+    :type salesforce_id: str
     """
     backend = session.env['connector.salesforce.backend'].browse(
         backend_id
@@ -376,7 +375,7 @@ def deactivate_record(session, model_name, backend_id, salesforce_id):
     :type backend_id: id or long
 
     :param salesforce_id: the uuid of Salesforce record
-    :type binding_id: str
+    :type salesforce_id: str
     """
     backend = session.env['connector.salesforce.backend'].browse(
         backend_id

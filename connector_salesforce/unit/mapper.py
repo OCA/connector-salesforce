@@ -28,23 +28,23 @@ class AddressMapper(ImportMapper):
         """Map to Odoo state from Salesforce
         state and country code
         """
-        state = record.get(state_key)
-        if not state:
+        state_name = record.get(state_key)
+        if not state_name:
             return False
-        state_id = self.session.env['res.country.state'].search(
-            [('name', '=', state)],
+        state = self.session.env['res.country.state'].search(
+            [('name', '=', state_name)],
             limit=1,
         )
-        if state_id:
-            return state_id[0]
+        if state:
+            return state.id
         else:
             country_id = self._country_id(record, country_key)
             if country_id:
                 return self.session.env['res.country.state'].create(
-                    {'name': state,
-                     'code': state[0:3],
+                    {'name': state_name,
+                     'code': state_name[0:3],
                      'country_id': country_id}
-                )
+                ).id
         return False
 
     def _country_id(self, record, country_key):
@@ -52,44 +52,41 @@ class AddressMapper(ImportMapper):
         country_code = record.get(country_key)
         if not country_code:
             return False
-        country_id = self.session.env['res.country'].search(
+        country = self.session.env['res.country'].search(
             [('code', '=', country_code)]
         )
         # we tolerate the fact that country is null
-        if len(country_id) > 1:
+        if len(country) > 1:
             raise MappingError(
                 'Many countries found to be linked with partner %s' % record
             )
 
-        if not country_id:
-            country_id = False
+        if not country:
             raise MappingError(
                 "No country %s found when mapping partner %s" % (
                     country_code,
                     record
                 )
             )
-        return country_id[0] if country_id else False
+        return country.id
 
     def _title_id(self, record, title_key):
         """Map the Odoo title from Salesforce title code
         If not available create it
         """
-        title = record.get(title_key)
-        if not title:
+        title_name = record.get(title_key)
+        if not title_name:
             return False
-        title_id = self.session.env['res.partner.title'].search(
-            [('name', '=', title)],
+        title = self.session.env['res.partner.title'].search(
+            [('name', '=', title_name)],
         )
-        if len(title_id) > 1:
+        if len(title) > 1:
             raise MappingError(
                 'Many titles found to be linked with partner %s' % record
             )
-        if title_id:
-            return title_id[0]
-        return self.session.env['res.partner.title'].create(
-            {'name': title}
-        )
+        if title:
+            return title.id
+        return self.model.create({'name': title_name}).id
 
 
 class PriceMapper(ImportMapper):
@@ -101,19 +98,19 @@ class PriceMapper(ImportMapper):
             raise MappingError(
                 'No currency Given for: %s' % record
             )
-        currency_id = self.session.env['res.currency'].search(
+        currency = self.session.env['res.currency'].search(
             [('name', '=ilike', currency_iso_code)]
         )
-        if not currency_id:
+        if not currency:
             raise MappingError(
                 'No %s currency available. '
                 'Please create one manually' % currency_iso_code
             )
-        if len(currency_id) > 1:
+        if len(currency) > 1:
             raise ValueError(
                 'Many Currencies found for %s. '
                 'Please ensure your multicompany rules are corrects '
                 'or check that the job is not runned by '
                 'the admin user' % currency_iso_code
             )
-        return currency_id[0]
+        return currency.id

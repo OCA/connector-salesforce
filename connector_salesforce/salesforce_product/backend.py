@@ -18,79 +18,68 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp.osv import orm, fields
+from openerp import models, fields, api
 
 
-class SalesforceProductBackend(orm.Model):
+class SalesforceProductBackend(models.Model):
 
     _inherit = 'connector.salesforce.backend'
 
-    _columns = {
-        'sf_last_product_import_sync_date': fields.datetime(
-            'Last Product Import Date'
-        ),
+    sf_last_product_import_sync_date = fields.Datetime(
+        'Last Product Import Date'
+    )
 
-        'sf_last_product_export_sync_date': fields.datetime(
-            'Last Product Export Date'
-        ),
+    sf_last_product_export_sync_date = fields.Datetime(
+        'Last Product Export Date'
+    )
 
-        'sf_product_master': fields.selection(
-            [('sf', 'Salesforce'), ('erp', 'OpenERP/Odoo')],
-            string='Select Master For Product',
-            help='Select the master for the products. '
-                 'Bidirectional/Conflicts are not managed so once set '
-                 'you should not modify direction',
-            required=True,
-        ),
-        'sf_product_type_mapping_ids': fields.one2many(
-            'connector.salesforce.product.type.mapping',
-            'backend_id',
-            'Product Type to SF Family Mapping'
-        ),
-    }
+    sf_product_master = fields.Selection(
+        [('sf', 'Salesforce'), ('erp', 'OpenERP/Odoo')],
+        string='Select Master For Product',
+        help='Select the master for the products. '
+             'Bidirectional/Conflicts are not managed so once set '
+             'you should not modify direction',
+        required=True,
+        default='erp',
+    )
+    sf_product_type_mapping_ids = fields.One2many(
+        comodel_name='connector.salesforce.product.type.mapping',
+        inverse_name='backend_id',
+        string='Product Type to SF Family Mapping'
+    )
 
-    _defaults = {'sf_product_master': 'erp'}
-
-    def import_sf_product(self, cr, uid, ids, context=None):
+    def import_sf_product(self):
         """Run the import of Salesforce products for given backend"""
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        current._import(
+        self._import(
             'connector.salesforce.product',
             'direct',
             'sf_last_product_import_sync_date',
         )
         return True
 
-    def import_sf_product_delay(self, cr, uid, ids, context=None):
+    def import_sf_product_delay(self):
         """Run the import of Salesforce products for given backend
         using jobs"""
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        current._import(
+        self._import(
             'connector.salesforce.product',
             'delay',
             'sf_last_product_import_sync_date',
         )
         return True
 
-    def export_sf_product(self, cr, uid, ids, context=None):
+    def export_sf_product(self):
         """Run the export of Salesforce products for given backend"""
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        current._export(
+        self._export(
             'connector.salesforce.product',
             'direct',
             'sf_last_product_export_sync_date',
         )
         return True
 
-    def export_sf_product_delay(self, cr, uid, ids, context=None):
+    def export_sf_product_delay(self):
         """Run the import of Salesforce products for given backend
         using jobs"""
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        current._export(
+        self._export(
             'connector.salesforce.product',
             'delay',
             'sf_last_product_export_sync_date',
@@ -98,26 +87,25 @@ class SalesforceProductBackend(orm.Model):
         return True
 
 
-class SalesforceProductTypeMApping(orm.Model):
+class SalesforceProductTypeMApping(models.Model):
 
     _name = 'connector.salesforce.product.type.mapping'
 
-    def _get_product_types(self, cr, uid, context=None):
-        return self.pool['product.template']._columns['type'].selection
+    @api.model
+    def _get_product_types(self):
+        return self.env['product.template']._fields['type'].selection
 
-    _columns = {
-        'product_type': fields.selection(
-            _get_product_types,
-            'Odoo/OpenERP product type',
-            required=True,
-        ),
-        'sf_family': fields.char(
-            'Sales Force Product Family',
-            required=True,
-        ),
-        'backend_id': fields.many2one(
-            'connector.salesforce.backend',
-            'Salesforce Backend',
-            required=True,
-        )
-    }
+    product_type = fields.Selection(
+        _get_product_types,
+        'Odoo/OpenERP product type',
+        required=True,
+    )
+    sf_family = fields.Char(
+        'Sales Force Product Family',
+        required=True,
+    )
+    backend_id = fields.Many2one(
+        'connector.salesforce.backend',
+        'Salesforce Backend',
+        required=True,
+    )

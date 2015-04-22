@@ -50,8 +50,8 @@ class SalesforcePriceBookEntryImporter(SalesforceImportSynchronizer):
         In this case we unlink the existing pricelist item
         """
         assert self.salesforce_id
-        entry_id = self.binder.to_openerp(self.salesforce_id)
-        self.session.env[self.model._name].unlink([entry_id])
+        entry = self.binder.to_openerp(self.salesforce_id)
+        entry.unlink()
 
     def _before_import(self):
         """Hook called before Salesforce entry import
@@ -62,10 +62,10 @@ class SalesforcePriceBookEntryImporter(SalesforceImportSynchronizer):
             SalesforceBinder,
             model='connector.salesforce.product'
         )
-        product_id = product_binder.to_openerp(
+        product = product_binder.to_openerp(
             self.salesforce_record['Product2Id']
         )
-        if not product_id:
+        if not product:
             if self.backend_record.sf_product_master == 'sf':
                 import_record(
                     self.session,
@@ -143,12 +143,12 @@ class SalesforcePriceBookEntryMapper(PriceMapper):
             SalesforceBinder,
             model='connector.salesforce.product',
         )
-        product_id = product_binder.to_openerp(
+        product = product_binder.to_openerp(
             sf_product_uuid,
             unwrap=True
         )
-        if not product_id:
+        if not product:
             raise MappingError(
                 'Product is not available in ERP for record %s' % record
             )
-        return {'product_id': product_id}
+        return {'product_id': product.id}

@@ -40,10 +40,10 @@ class SalesforceExportSynchronizer(ExportSynchronizer):
     def __init__(self, connector_env):
         super(SalesforceExportSynchronizer, self).__init__(connector_env)
         self.salesforce_id = None
-        self.binding_record = None
         self.binding_id = None
+        self.binding = None
 
-    def _after_export(self, binding_id):
+    def _after_export(self, binding):
         """ Hook called after the export"""
         return
 
@@ -60,20 +60,20 @@ class SalesforceExportSynchronizer(ExportSynchronizer):
         # And deleted ind continue to exist into recycle bin.
         # Recycle bin lifespan is a Salesforce parameter
         # by default it is 15 days
-        assert self.binding_record.salesforce_id
+        assert self.binding.salesforce_id
         if self.backend_adapter.exists(self.salesforce_id):
-            self.backend_adapter.delete(self.binding_record.salesforce_id)
+            self.backend_adapter.delete(self.binding.salesforce_id)
 
     def _to_deactivate(self):
         """Predicate that decide if an Odoo record
         must be deactivated on Salesforce
         """
-        assert self.binding_record
-        model = self.session.pool[self.model._name]
-        cols = set(model._columns)
+        assert self.binding
+        model = self.session.env[self.model._name]
+        cols = set(model._fields)
         cols.update(model._inherit_fields)
         if 'active' in cols:
-            if not self.binding_record.active:
+            if not self.binding.active:
                 return True
         return False
 
@@ -85,9 +85,7 @@ class SalesforceExportSynchronizer(ExportSynchronizer):
         :rtype: :py:class:`openerp.osv.orm.BrowseRecord`
         """
         assert self.binding_id
-        return self.session.env[self._model_name].browse(
-            self.binding_id
-        )
+        return self.model.browse(self.binding_id)
 
     def _map_data_for_upsert(self, mapper, **kwargs):
         """ Call the convert function of the Mapper
@@ -130,30 +128,30 @@ class SalesforceExportSynchronizer(ExportSynchronizer):
         # we may want to return an NotImplementedError
         return
 
-    def _export(self, binding_id, salesforce_id):
+    def _export(self, binding, salesforce_id):
         """Export a binding record on Salesforce using REST API
-        :param binding_id: the current binding id in Odoo
-        :type binding_id: int or long
+        :param binding: the current binding in Odoo
+        :type binding: RecordSet
 
         :param salesforce_id: Salesforce uuid if available else None/False
         :type salesforce_id: str on None
 
         """
-        record_mapper = self.mapper.map_record(self.binding_record)
+        record_mapper = self.mapper.map_record(self.binding)
         # optimisation trick to avoid lookup binding
         data = self._map_data_for_upsert(record_mapper,
-                                         binding_id=binding_id,
+                                         binding=binding,
                                          backend_record=self.backend_record)
         self._validate_data(data)
         sf_id = self._upsert(salesforce_id, data)
-        self.binder.bind(sf_id, binding_id)
+        self.binder.bind(sf_id, binding)
 
     def run(self, binding_id, force_deactivate=False):
         """Try to export or deactivate a record on Salesforce using REST API
         call required hooks and bind the record
 
-        :param binding_id: the current binding id in Odoo
-        :type binding_id: int or long
+        :param binding: the current binding id in Odoo
+        :type binding: int or long
 
         :param force_deactivate: If set to True it will force deactivate
                                  without calling _to_deactivate
@@ -161,8 +159,8 @@ class SalesforceExportSynchronizer(ExportSynchronizer):
 
         """
         self.binding_id = binding_id
-        self.binding_record = self._get_record()
-        if not self.binding_record:
+        self.binding = self._get_record()
+        if not self.binding:
             raise NotImplementedError(
                 'Deactivation of deleted binding is not supported'
             )
@@ -170,13 +168,13 @@ class SalesforceExportSynchronizer(ExportSynchronizer):
             self._deactivate()
             return
         self._before_export()
-        if self.binding_record.salesforce_id:
-            self.salesforce_id = self.binding_record.salesforce_id
+        if self.binding.salesforce_id:
+            self.salesforce_id = self.binding.salesforce_id
         else:
             if self.backend_adapter._sf_lookup:
                 self.salesforce_id = binding_id
         # calls _after_export
-        self._export(self.binding_id, self.salesforce_id)
+        self._export(self.binding, self.salesforce_id)
 
 
 class SalesforceBatchExportSynchronizer(ExportSynchronizer):

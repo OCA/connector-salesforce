@@ -39,28 +39,23 @@ class SalesforceBinder(Binder):
         :param unwrap: If True returns the id of the record related
                        to the binding record
 
-        :return: id of binding or if unwrapped the id of the record related
+        :return: binding record  or if unwrapped the record related
                  to the binding record
-        :rtype: int
+        :rtype: RecordSet
         """
 
-        model = self.session.env[self.model._name]
-        binding_ids = model.with_context(active_search=False).search(
+        binding = self.model.with_context(active_search=False).search(
             [('salesforce_id', '=', salesforce_id),
                 ('backend_id', '=', self.backend_record.id)],
 
         )
-        if not binding_ids:
+        if not binding:
             return None
-        assert len(binding_ids) == 1, "Several records found: %s" % binding_ids
-        binding_id = binding_ids[0]
+        assert len(binding) == 1, "Several records found: %s" % binding
         if unwrap:
-            return self.session.env[self.model._name].read(
-                binding_id,
-                ['openerp_id']
-            )['openerp_id'][0]
+            return binding.openerp_id
         else:
-            return binding_id
+            return binding
 
     def to_backend(self, binding_id):
         """Return the external code for a given binding model id
@@ -70,7 +65,7 @@ class SalesforceBinder(Binder):
 
         :return: external code of `binding_id` or None
         """
-        sf_record = self.session.env[self.model._name].read(
+        sf_record = self.model.read(
             binding_id,
             ['salesforce_id']
         )
@@ -78,18 +73,19 @@ class SalesforceBinder(Binder):
             return None
         return sf_record['salesforce_id']
 
-    def to_binding(self, record_id):
-        """Return the binding id for a given openerp record and backend
+    def to_binding(self, record):
+        """Return the binding record for a given openerp record and backend
 
-        :param record_id: id of a Odoo record
-        :type binding_id: int
+        :param record: record or id of a Odoo record
+        :type binding_id: record or id
 
-        :return: external binding id for `record_id` or None
+        :return: external binding record for `record` or None
         """
-        sf_id = self.session.env[self.model._name].search(
+        lookup_id = record if isinstance(record, (int, long))else record.id
+        sf_id = self.model.search(
             [
                 ('backend_id', '=', self.backend_record.id),
-                ('openerp_id', '=', record_id)
+                ('openerp_id', '=', lookup_id)
             ]
         )
         if not sf_id:
@@ -97,25 +93,21 @@ class SalesforceBinder(Binder):
         if len(sf_id) > 1:
             raise ManyIDSInBackend(
                 'Many record found in backend %s for model %s record_id %s' %
-                (self.backend_record.name, self.model._name, record_id)
+                (self.backend_record.name, self.model._name, record)
             )
-        return sf_id[0]
+        return sf_id
 
-    def bind(self, salesforce_id, binding_id):
+    def bind(self, salesforce_id, binding):
         """ Create the link between an external id and an Odoo row and
         by updating the last synchronization date and the external code.
 
         :param external_id: Salesforce unique identifier
-        :param binding_id: Binding record id
-        :type binding_id: int or long
+        :param binding: Binding record
+        :type binding: binding record
         """
         # avoid to trigger the export when we modify the `odbc code`
-        context = self.session.context.copy()
-        context['connector_no_export'] = True
         now_fmt = fields.datetime.now()
-        self.environment.model.write(self.session.cr,
-                                     self.session.uid,
-                                     binding_id,
-                                     {'salesforce_id': salesforce_id,
-                                      'salesforce_sync_date': now_fmt},
-                                     context=context)
+        binding.with_context(connector_no_export=True).write(
+            {'salesforce_id': salesforce_id,
+             'salesforce_sync_date': now_fmt},
+        )

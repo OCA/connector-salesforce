@@ -48,10 +48,10 @@ class SalesforceContactImporter(SalesforceImportSynchronizer):
             SalesforceBinder,
             model='connector.salesforce.account'
         )
-        account_id = account_binder.to_openerp(
+        account = account_binder.to_openerp(
             self.salesforce_record['AccountId']
         )
-        if not account_id:
+        if not account:
             import_record(
                 self.session,
                 'connector.salesforce.account',
@@ -141,14 +141,11 @@ class SalesforceContactMapper(AddressMapper):
         )
         if not record['AccountId']:
             return
-        parent_id = parent_binder.to_openerp(
+        parent = parent_binder.to_openerp(
             record['AccountId']
         )
-        if not parent_id:
+        if not parent:
             raise MappingError(
                 'No Account (parent partner) imported for Contact %s' % record
             )
-        parent = self.session.env['connector.salesforce.account'].browse(
-            parent_id
-        )
         return {'parent_id': parent.openerp_id.id}

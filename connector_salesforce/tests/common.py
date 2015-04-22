@@ -31,16 +31,14 @@ class CommonTest(test_common.TransactionCase):
 
     def _get_backend(self):
         """Provide a fixture backend record for the test"""
-        backend_model = self.registry('connector.salesforce.backend')
-        b_ids = backend_model.search(
-            self.cr, self.uid,
+        backend_model = self.env['connector.salesforce.backend']
+        backend = backend_model.search(
             [('name', '=', 'Salesforce Backend Test')]
         )
-        if b_ids:
-            b_id = b_ids[0]
+        if backend:
+            return backend[0]
         else:
-            b_id = backend_model.create(
-                self.cr, self.uid,
+            backend = backend_model.create(
                 {'name': 'Salesforce Backend Test',
                  'version': '15',
                  'url': 'Dummy',
@@ -53,7 +51,7 @@ class CommonTest(test_common.TransactionCase):
                  'sf_shop_id': 1,
                  'consumer_refresh_token': 'Dummy'}
             )
-        return backend_model.browse(self.cr, self.uid, b_id)
+        return backend
 
     def get_connector_env(self, model_name):
         self.assertTrue(self.backend)
@@ -64,18 +62,14 @@ class CommonTest(test_common.TransactionCase):
         self.backend = self._get_backend()
 
     def get_euro_pricelist_version(self):
-        pl_version_id = self.registry('product.pricelist.version').search(
-            self.cr,
-            self.uid,
+        pl_version = self.env['product.pricelist.version'].search(
             [('pricelist_id.currency_id.name', '=', 'EUR'),
              ('pricelist_id.type', '=', 'sale')]
         )
-        self.assertTrue(pl_version_id)
-        return self.registry('product.pricelist.version').browse(
-            self.cr,
-            self.uid,
-            pl_version_id[0]
-        )
+        self.assertTrue(pl_version)
+        return pl_version
+
+
 
 
 @contextmanager

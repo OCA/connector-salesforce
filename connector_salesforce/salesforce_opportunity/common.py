@@ -18,23 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp.osv import orm, fields
+from openerp import models, fields
 from ..unit.binder import SalesforceBinder
 
 
-class SalesforceOpportunity(orm.Model):
+class SalesforceOpportunity(models.Model):
     _inherit = 'salesforce.binding'
     _inherits = {'sale.order': 'openerp_id'}
     _name = 'connector.salesforce.opportunity'
     _description = 'Import SF Opportunity into sale.order model'
 
-    _columns = {
-        'openerp_id': fields.many2one('sale.order',
-                                      string='Sale Order Line',
-                                      required=True,
-                                      select=True,
-                                      ondelete='restrict'),
-    }
+    openerp_id = fields.Many2one('sale.order',
+                                 string='Sale Order Line',
+                                 required=True,
+                                 select=True,
+                                 ondelete='restrict')
 
     _sql_constraints = [
         ('sf_id_uniq', 'unique(backend_id, salesforce_id)',
@@ -44,19 +42,17 @@ class SalesforceOpportunity(orm.Model):
 SalesforceBinder._model_name.append('connector.salesforce.opportunity')
 
 
-class SalesforceOpportunityLineItem(orm.Model):
+class SalesforceOpportunityLineItem(models.Model):
     _inherit = 'salesforce.binding'
     _inherits = {'sale.order.line': 'openerp_id'}
     _name = 'connector.salesforce.opportunity.line.item'
     _description = 'Import SF Opportunity line item into sale.order model'
 
-    _columns = {
-        'openerp_id': fields.many2one('sale.order.line',
-                                      string='Sale Order Line',
-                                      required=True,
-                                      select=True,
-                                      ondelete='restrict'),
-    }
+    openerp_id = fields.Many2one('sale.order.line',
+                                 string='Sale Order Line',
+                                 required=True,
+                                 select=True,
+                                 ondelete='restrict')
 
     _sql_constraints = [
         ('sf_id_uniq', 'unique(backend_id, salesforce_id)',

@@ -18,28 +18,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp.osv import orm, fields
+from openerp import models, fields
 from ..unit.binder import SalesforceBinder
 
 
-class SalesforceAccount(orm.Model):
+class SalesforceAccount(models.Model):
     _inherit = 'salesforce.binding'
     _inherits = {'res.partner': 'openerp_id'}
     _name = 'connector.salesforce.account'
     _description = 'Import SF Account into res.partner model'
 
-    _columns = {
-        'sf_shipping_partner_id': fields.many2one(
-            'res.partner',
-            'Salesforce shipping partner'
-        ),
+    sf_shipping_partner_id = fields.Many2one(
+        'res.partner',
+        'Salesforce shipping partner'
+    )
 
-        'openerp_id': fields.many2one('res.partner',
-                                      string='Partner',
-                                      required=True,
-                                      select=True,
-                                      ondelete='restrict'),
-    }
+    openerp_id = fields.Many2one('res.partner',
+                                 string='Partner',
+                                 required=True,
+                                 select=True,
+                                 ondelete='restrict')
 
     _sql_constraints = [
         ('sf_id_uniq', 'unique(backend_id, salesforce_id)',

@@ -18,34 +18,28 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp.osv import orm, fields
+from openerp import models, fields
 
 
-class SalesforceAccountBackend(orm.Model):
+class SalesforceAccountBackend(models.Model):
 
     _inherit = 'connector.salesforce.backend'
 
-    _columns = {
-        'sf_last_account_import_sync_date': fields.datetime(
-            'Last Account Import Date'
-        ),
-    }
+    sf_last_account_import_sync_date = fields.Datetime(
+        'Last Account Import Date'
+    )
 
-    def import_sf_account(self, cr, uid, ids, context=None):
+    def import_sf_account(self):
         """Run the import of Salesforce account for given backend"""
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        current._import(
+        self._import(
             'connector.salesforce.account',
             'direct',
             'sf_last_account_import_sync_date',
         )
 
-    def import_sf_account_delay(self, cr, uid, ids, context=None):
+    def import_sf_account_delay(self):
         """Run the import of Salesforce account for given backend using jobs"""
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        current._import(
+        self._import(
             'connector.salesforce.account',
             'delay',
             'sf_last_account_import_sync_date',

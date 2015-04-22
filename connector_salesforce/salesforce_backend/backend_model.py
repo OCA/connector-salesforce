@@ -21,14 +21,14 @@
 from __future__ import absolute_import
 import simplejson
 from ..lib.oauth2_utils import SalesforceOauth2MAnager
-from openerp.osv import orm, fields
+from openerp import models, fields, api, exceptions
 from openerp.tools.translate import _
 from openerp.addons.connector import session as csession, connector
 from ..unit.importer_synchronizer import batch_import, delayed_batch_import
 from ..unit.exporter_synchronizer import batch_export, delayed_batch_export
 
 
-class SalesforceBackend(orm.Model):
+class SalesforceBackend(models.Model):
     """Salesforce backend
 
     Please refer to connector backend documentation
@@ -70,7 +70,8 @@ class SalesforceBackend(orm.Model):
     _description = """Salesforce Backend"""
     _backend_type = "salesforce"
 
-    def _select_versions(self, cr, uid, context=None):
+    @api.model
+    def _select_versions(self):
         """ Available versions
 
         Can be inherited to add custom versions.
@@ -78,9 +79,10 @@ class SalesforceBackend(orm.Model):
         :return: list of tuple of available versions
         :rtype: list
         """
-        return self._select_versions_hook(cr, uid, context=context)
+        return self._select_versions_hook()
 
-    def _select_versions_hook(self, cr, uid, context=None):
+    @api.model
+    def _select_versions_hook(self):
         """ Available versions
 
         Can be inherited to add custom versions.
@@ -90,104 +92,92 @@ class SalesforceBackend(orm.Model):
         """
         return [('15', "Winter'15")]
 
-    _columns = {
-        'authentication_method': fields.selection(
-            [
-                ('pwd_token', 'Based on User, Password, Token'),
-                ('oauth2', 'OAuth 2'),
-                ('ip_filtering', 'Based on IP Filter and OrganizationId')
-            ],
-            string='Authentication Method',
-        ),
+    authentication_method = fields.Selection(
+        [
+            ('pwd_token', 'Based on User, Password, Token'),
+            ('oauth2', 'OAuth 2'),
+            ('ip_filtering', 'Based on IP Filter and OrganizationId')
+        ],
+        string='Authentication Method',
+        default='oauth2',
+    )
 
-        'name': fields.char(
-            'Name',
-            required=True
-        ),
+    name = fields.Char(
+        'Name',
+        required=True
+    )
 
-        'version': fields.selection(
-            _select_versions,
-            string='Version',
-            required=True
-        ),
+    version = fields.Selection(
+        selection='_select_versions',
+        string='Version',
+        required=True
+    )
 
-        'url': fields.char(
-            'URL',
-            required=True,
-        ),
+    url = fields.Char(
+        'URL',
+        required=True,
+    )
 
-        'username': fields.char(
-            'User Name',
-        ),
+    username = fields.Char(
+        'User Name',
+    )
 
-        'password': fields.char(
-            'Password',
-        ),
+    password = fields.Char(
+        'Password',
+    )
 
-        'consumer_key': fields.char(
-            'OAuth2 Consumer Key',
-        ),
+    consumer_key = fields.Char(
+        'OAuth2 Consumer Key',
+    )
 
-        'consumer_secret': fields.char(
-            'OAuth2 secret',
-        ),
+    consumer_secret = fields.Char(
+        'OAuth2 secret',
+    )
 
-        'consumer_code': fields.char(
-            'OAuth2 client authorization code'
-        ),
-        'consumer_refresh_token': fields.char(
-            'OAuth2 Refresh Token'
-        ),
-        'consumer_token': fields.char(
-            'OAuth2 Token'
-        ),
-        'callback_url': fields.char(
-            'Public secure URL of Odoo (HTTPS)',
-        ),
-        'security_token': fields.char(
-            'Password flow Security API token',
-        ),
+    consumer_code = fields.Char(
+        'OAuth2 client authorization code'
+    )
+    consumer_refresh_token = fields.Char(
+        'OAuth2 Refresh Token'
+    )
+    consumer_token = fields.Char(
+        'OAuth2 Token'
+    )
+    callback_url = fields.Char(
+        'Public secure URL of Odoo (HTTPS)',
+    )
+    security_token = fields.Char(
+        'Password flow Security API token',
+    )
 
-        'organization_uuid': fields.char('OrganizationId'),
+    organization_uuid = fields.Char('OrganizationId')
 
-        'sandbox': fields.boolean(
-            'Connect on sandbox instance',
-        ),
-    }
+    sandbox = fields.Boolean(
+        'Connect on sandbox instance',
+    )
 
-    _defaults = {'authentication_method': 'oauth2'}
-
-    def _enforce_param(self, cr, uid, backend_record, param_name,
-                       context=None):
+    @api.model
+    def _enforce_param(self, param_name):
         """Ensure configuration parameter is set on backend record
 
-        :param backend_record: record of `connector.salesforce.backend`
-        :type backend_record: :py:class:`openerp.osv.orm.Model`
+        :param param_name: name of parameter to validate
+        :type param_name: str
 
         :return: True is parameter is set or raise an exception
         :rtype: bool
         """
-        if not backend_record[param_name]:
-            f_model = self.pool['ir.model.fields']
-            field_id = f_model.search(
-                cr,
-                uid,
+        self.ensure_one()
+        if not getattr(self, param_name, None):
+            f_model = self.env['ir.model.fields']
+            field = f_model.search(
                 [('model', '=', self._name),
                  ('name', '=', param_name)],
-                context=context
             )
-            if len(field_id) == 1:
-                field = f_model.browse(
-                    cr,
-                    uid,
-                    field_id[0],
-                    context=context
-                )
+            if len(field) == 1:
                 field_name = field.field_description
             else:
                 field_name = param_name
-            raise orm.except_orm(
-                _('Configuration error'),
+            raise exceptions.Warning(
                 _('Configuration %s is mandatory with '
                   'current authentication method') % field_name
             )
@@ -198,54 +188,35 @@ class SalesforceBackend(orm.Model):
         when validating configuration"""
         return True
 
-    def _validate_configuration(self, cr, uid, ids, context=None):
+    def _validate_configuration(self):
         """Ensure configuration on backend record is correct
 
         We also test required parameters in order to
         support eventual server env based configuration
         """
-        for config in self.browse(cr, uid, ids, context=context):
+        for config in self:
             if self._enforce_url():
-                self._enforce_param(cr, uid, config, 'url',
-                                    context=context)
+                config._enforce_param('url')
             if config.authentication_method == 'ip_filtering':
-                self._enforce_param(cr, uid, config, 'organization_uuid',
-                                    context=context)
-                self._enforce_param(cr, uid, config, 'username',
-                                    context=context)
-                self._enforce_param(cr, uid, config, 'password',
-                                    context=context)
+                config._enforce_param('organization_uuid')
+                config._enforce_param('username')
+                config._enforce_param('password')
             if config.authentication_method == 'pwd_token':
-                self._enforce_param(cr, uid, config, 'security_token',
-                                    context=context)
-                self._enforce_param(cr, uid, config, 'username',
-                                    context=context)
-                self._enforce_param(cr, uid, config, 'password',
-                                    context=context)
+                config._enforce_param('security_token')
+                config._enforce_param('username')
+                config._enforce_param('password')
             if config.authentication_method == 'oauth2':
-                self._enforce_param(cr, uid, config, 'consumer_key',
-                                    context=context)
-                self._enforce_param(cr, uid, config, 'consumer_secret',
-                                    context=context)
-                self._enforce_param(cr, uid, config, 'callback_url',
-                                    context=context)
+                config._enforce_param('consumer_key')
+                config._enforce_param('consumer_secret')
+                config._enforce_param('callback_url')
         return True
 
     _constraints = [
         (_validate_configuration, 'Configuration is invalid', [])
     ]
 
-    def _manage_ids(self, ids):
-        """Boilerplate to manage various ids type"""
-        if isinstance(ids, (list, tuple)):
-            assert len(ids) == 1, 'One id expected'
-            backend_id = ids[0]
-        else:
-            backend_id = ids
-        return backend_id
-
-    def get_connector_environment(self, cr, uid, ids, model_name,
-                                  context=None):
+    @api.model
+    def get_connector_environment(self, model_name):
         """Returns a connector environment related to model and current backend
 
         :param model_name: Odoo model name taken form `_name` property
@@ -255,39 +226,36 @@ class SalesforceBackend(orm.Model):
         :rtype: :py:class:``connector.ConnectorEnvironment``
 
         """
-        backend_id = self._manage_ids(ids)
         session = csession.ConnectorSession(
-            cr,
-            uid,
-            context
+            self.env.cr,
+            self.env.uid,
+            self.env.context
         )
-        backend = self.browse(cr, uid, backend_id, context=context)
-        env = connector.ConnectorEnvironment(backend, session, model_name)
+        env = connector.ConnectorEnvironment(self, session, model_name)
         return env
 
-    def _get_oauth2_handler(self, cr, uid, ids, context=None):
+    @api.model
+    def _get_oauth2_handler(self):
         """Initialize and return an instance of Salesforce OAuth2 Helper
 
         :return: An OAuth2 helper instance
         :rtype: :py:class:`..lib.oauth2_utils.SalesforceOauth2MAnager`
         """
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-
+        self.ensure_one()
         oauth2_handler = SalesforceOauth2MAnager(
-            current
+            self
         )
         return oauth2_handler
 
-    def redirect_to_validation_url(self, cr, uid, ids, context=None):
+    @api.model
+    def redirect_to_validation_url(self):
         """Retrieve Oauth2 authorization URL"""
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        oauth2_handler = current._get_oauth2_handler()
+        self.ensure_one()
+        oauth2_handler = self._get_oauth2_handler()
         auth_url = oauth2_handler.authorize_url(
             response_type='code',
             state=simplejson.dumps(
-                {'backend_id': current.id, 'dbname': cr.dbname}
+                {'backend_id': self.id, 'dbname': self.env.cr.dbname}
             )
         )
         return {
@@ -297,22 +265,21 @@ class SalesforceBackend(orm.Model):
             'url': auth_url
         }
 
+    @api.model
     def refresh_token(self, cr, uid, ids, context=None):
         """Refresh current backend Oauth2 token
         using the Salesforce refresh token
         """
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        current._get_token(refresh=True)
+        self.ensure_one()
+        self._get_token(refresh=True)
         return {}
 
-    def _get_token(self, cr, uid, ids, refresh=False, context=None):
+    @api.model
+    def _get_token(self, refresh=False):
         """Obtain current backend Oauth2 token and or refresh Token"""
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        oauth2_handler = current._get_oauth2_handler()
+        oauth2_handler = self._get_oauth2_handler()
         if refresh:
-            if not current.consumer_refresh_token:
+            if not self.consumer_refresh_token:
                 raise ValueError(
                     'Trying to refresh token but no saved refresh token'
                 )
@@ -331,11 +298,11 @@ class SalesforceBackend(orm.Model):
         token_vals = {'consumer_token': response['access_token']}
         if response.get('refresh_token'):
             token_vals['consumer_refresh_token'] = response['refresh_token']
-        current.write(token_vals)
+        self.write(token_vals)
         return response
 
-    def _import(self, cr, uid, ids, model, mode, date_field,
-                full=False, context=None):
+    @api.model
+    def _import(self, model, mode, date_field, full=False):
         """Run an import for given backend and model
 
         :param model: The Odoo binding model name found in _name
@@ -353,31 +320,29 @@ class SalesforceBackend(orm.Model):
         assert mode in ('direct', 'delay'), "Invalid mode"
         import_start_time = fields.datetime.now()
         session = csession.ConnectorSession(
-            cr,
-            uid,
-            context
+            self.env.cr,
+            self.env.uid,
+            self.env.context
         )
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        date = current[date_field] if full is False else False
+        date = getattr(self, date_field, False) if full is False else False
         if mode == 'direct':
             batch_import(
                 session,
                 model,
-                current.id,
+                self.id,
                 date=date
             )
         else:
             delayed_batch_import(
                 session,
                 model,
-                current.id,
+                self.id,
             )
-        current.write({date_field: import_start_time})
+        self.write({date_field: import_start_time})
         return import_start_time
 
-    def _export(self, cr, uid, ids, model, mode, date_field,
-                full=False, context=None):
+    @api.model
+    def _export(self, model, mode, date_field, full=False):
         """Run an export for given backend and model
 
         :param model: The Odoo binding model name found in _name
@@ -394,44 +359,40 @@ class SalesforceBackend(orm.Model):
         """
         assert mode in ['direct', 'delay'], "Invalid mode"
         session = csession.ConnectorSession(
-            cr,
-            uid,
-            context
+            self.env.cr,
+            self.env.uid,
+            self.env.context
         )
         export_start_time = fields.datetime.now()
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        date = current[date_field] if full is False else False
+        date = getattr(self, date_field, False) if full is False else False
         if mode == 'direct':
             batch_export(
                 session,
                 model,
-                current.id,
+                self.id,
                 date=date,
             )
         else:
             delayed_batch_export(
                 session,
                 model,
-                current.id,
+                self.id,
                 date=date
             )
-        current.write({date_field: export_start_time})
+        self.write({date_field: export_start_time})
         return export_start_time
 
 
-class SalesforceBindingModel(orm.AbstractModel):
+class SalesforceBindingModel(models.AbstractModel):
 
     _name = 'salesforce.binding'
     _inherit = 'external.binding'
 
-    _columns = {
-        'backend_id': fields.many2one(
-            'connector.salesforce.backend',
-            'salesforce Backend',
-            required=True,
-            ondelete='restrict'
-        ),
-        'salesforce_id':  fields.char('Salesforce ID'),
-        'salesforce_sync_date': fields.datetime('Salesforce Synchro. Date')
-    }
+    backend_id = fields.Many2one(
+        'connector.salesforce.backend',
+        'salesforce Backend',
+        required=True,
+        ondelete='restrict'
+    )
+    salesforce_id = fields.Char('Salesforce ID')
+    salesforce_sync_date = fields.Datetime('Salesforce Synchro. Date')

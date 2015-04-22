@@ -18,36 +18,30 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp.osv import orm, fields
+from openerp import models, fields
 
 
-class SalesforceContactBackend(orm.Model):
+class SalesforceContactBackend(models.Model):
 
     _inherit = 'connector.salesforce.backend'
 
-    _columns = {
-        'sf_last_contact_import_sync_date': fields.datetime(
-            'Last Contact Import Date'
-        ),
-    }
+    sf_last_contact_import_sync_date = fields.Datetime(
+        'Last Contact Import Date'
+    )
 
-    def import_sf_contact(self, cr, uid, ids, context=None):
+    def import_sf_contact(self):
         """Run the import of Salesforce contacts for given backend"""
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        current._import(
+        self._import(
             'connector.salesforce.contact',
             'direct',
             'sf_last_contact_import_sync_date',
         )
 
-    def import_sf_contact_delay(self, cr, uid, ids, context=None):
+    def import_sf_contact_delay(self):
         """Run the import of Salesforce contacts for given backend
         using jobs
         """
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        current._import(
+        self._import(
             'connector.salesforce.contact',
             'delay',
             'sf_last_contact_import_sync_date',

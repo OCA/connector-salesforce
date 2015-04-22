@@ -36,7 +36,7 @@ _logger = logging.getLogger(__name__)
 class SalesforceAccountImporter(SalesforceImportSynchronizer):
     _model_name = 'connector.salesforce.account'
 
-    def _after_import(self, binding_id):
+    def _after_import(self, binding):
         """Hook that is called after Salesforce account import
         It maps Salesforce account data into child partner on Odoo
         """
@@ -45,10 +45,9 @@ class SalesforceAccountImporter(SalesforceImportSynchronizer):
         record_mapper = self.mapper
         shipping_add_data = record_mapper.map_shipping_address(
             self.salesforce_record,
-            binding_id,
+            binding,
         )
-        self.session.env[self._model_name].write([binding_id],
-                                                 shipping_add_data)
+        binding.write(shipping_add_data)
 
 
 @salesforce_backend
@@ -104,7 +103,7 @@ class SalesforceAccountMapper(AddressMapper, PriceMapper):
         data['state_id'] = state_id
         return data
 
-    def map_shipping_address(self, record, binding_id=None):
+    def map_shipping_address(self, record, binding=None):
         """Manage the Salesforce account shipping address
         If no shipping address exist in Odoo it is created.
         If a shipping address already exists we update it.
@@ -112,27 +111,26 @@ class SalesforceAccountMapper(AddressMapper, PriceMapper):
         it will be unactivated
 
         """
-        if not binding_id:
+        if not binding:
             raise MappingError(
-                'No binding_id when mapping shipping address'
+                'No binding when mapping shipping address'
             )
-        current_partner = self.session.env['self._model_name'].browse(
-            binding_id,
-        )
-        shipp_id = None
+        binding.ensure_one()
+        current_partner = binding
+        shipp_id = False
         shipp_fields = (field for field in record
                         if field.startswith('Shipping'))
         if any(record[field] for field in shipp_fields):
             if current_partner.sf_shipping_partner_id:
                 shipp_id = current_partner.sf_shipping_partner_id.id
                 self.session.env['res.partner'].write(
-                    [current_partner.sf_shipping_partner_id.id],
+                    [shipp_id],
                     self._prepare_shipp_addresse_data(record, current_partner)
                 )
             else:
                 shipp_id = self.session.env['res.partner'].create(
                     self._prepare_shipp_addresse_data(record, current_partner)
-                )
+                ).id
         else:
             shipp_id = False
             if current_partner.sf_shipping_partner_id:

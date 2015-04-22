@@ -86,10 +86,10 @@ def create_product_binding(session, model_name, record_id, vals=None):
     record = session.env[model_name].browse(record_id)
     sf_product_model = 'connector.salesforce.product'
     backend_model = 'connector.salesforce.backend'
-    backend_ids = session.env[backend_model].search([])
+    backends = session.env[backend_model].search([])
     if not record.sale_ok or not record.active:
         return
-    for backend in session.env[backend_model].browse(backend_ids):
+    for backend in backends:
         if backend.sf_product_master == 'erp':
             session.env[sf_product_model].create(
                 {'backend_id': backend.id,
@@ -114,8 +114,8 @@ def export_product(session, model_name, record_id, vals=None):
     """
     sf_product_model = 'connector.salesforce.product'
     backend_model = 'connector.salesforce.backend'
-    backend_ids = session.env[backend_model].search([])
-    for backend in session.env[backend_model].browse(backend_ids):
+    backends = session.env[backend_model].search([])
+    for backend in backends:
         if backend.sf_product_master == 'erp':
             conn_env = backend.get_connector_environment(
                 sf_product_model

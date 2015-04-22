@@ -21,18 +21,17 @@
 import simplejson
 from openerp import SUPERUSER_ID
 from openerp.modules.registry import RegistryManager
-import openerp.addons.web.http as oeweb
+from openerp import http
 
 
-class SalesforceOAuthController(oeweb.Controller):
+class SalesforceOAuthController(http.Controller):
     """Controller that is used to authenticate
     Salesforce using oauth2. This is used
     as the callback URL and it will register tocken
     into `connector.salesforce.backend`
     """
-    _cp_path = '/salesforce'
 
-    @oeweb.httprequest
+    @http.route('/salesforce', type='http', auth='none')
     def oauth(self, req, **kwargs):
         """Write Salesforce authorization
         Token in given backend.

@@ -28,14 +28,12 @@ class ContactImportTest(CommonTest):
     def setUp(self):
         super(ContactImportTest, self).setUp()
         self.model_name = 'connector.salesforce.contact'
-        self.imported_model = self.registry(self.model_name)
+        self.imported_model = self.env[self.model_name]
         self.conn_env = self.get_connector_env(self.model_name)
 
     def test_simple_import(self):
         pl_version = self.get_euro_pricelist_version()
-        self.registry('connector.salesforce.pricebook.entry.mapping').create(
-            self.cr,
-            self.uid,
+        self.env['connector.salesforce.pricebook.entry.mapping'].create(
             {
                 'backend_id': self.backend.id,
                 'currency_id': pl_version.pricelist_id.currency_id.id,
@@ -54,19 +52,12 @@ class ContactImportTest(CommonTest):
         with mock_simple_salesforce(response):
             self.backend.import_sf_contact()
 
-        imported_id = self.imported_model.search(
-            self.cr,
-            self.uid,
+        imported = self.imported_model.search(
             [('salesforce_id', '=', 'uuid_contact_01'),
              ('backend_id', '=', self.backend.id)]
         )
-        self.assertTrue(imported_id)
-        self.assertEqual(len(imported_id), 1)
-        imported = self.imported_model.browse(
-            self.cr,
-            self.uid,
-            imported_id[0]
-        )
+        self.assertTrue(imported)
+        self.assertEqual(len(imported), 1)
         self.assertEqual(imported.name, 'Contact lastname Contact firstname')
         self.assertEqual(imported.street, 'Contact street')
         self.assertEqual(imported.city, 'Contact city')

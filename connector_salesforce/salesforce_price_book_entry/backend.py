@@ -18,66 +18,57 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp.osv import orm, fields
+from openerp import models, fields
 
 
-class SalesforcePriceBookEntryBackend(orm.Model):
+class SalesforcePriceBookEntryBackend(models.Model):
 
     _inherit = 'connector.salesforce.backend'
 
-    _columns = {
-        'sf_last_entry_import_sync_date': fields.datetime(
-            'Last Entry Import Date'
-        ),
-        'sf_entry_mapping_ids': fields.one2many(
-            'connector.salesforce.pricebook.entry.mapping',
-            'backend_id',
-            'Price Book Entries mapping'
-        )
-    }
+    sf_last_entry_import_sync_date = fields.Datetime(
+        'Last Entry Import Date'
+    )
+    sf_entry_mapping_ids = fields.One2many(
+        comodel_name='connector.salesforce.pricebook.entry.mapping',
+        inverse_name='backend_id',
+        string='Price Book Entries mapping'
+    )
 
-    def import_sf_entry(self, cr, uid, ids, context=None):
+    def import_sf_entry(self):
         """Run the import of Salesforce pricebook entries for given backend"""
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        current._import(
+        self._import(
             'connector.salesforce.pricebook.entry',
             'direct',
             'sf_last_entry_import_sync_date',
         )
 
-    def import_sf_entry_delay(self, cr, uid, ids, context=None):
+    def import_sf_entry_delay(self):
         """Run the import of Salesforce pricebook entries for given backend
         using jobs"""
-        backend_id = self._manage_ids(ids)
-        current = self.browse(cr, uid, backend_id, context=context)
-        current._import(
+        self._import(
             'connector.salesforce.pricebook.entry',
             'delay',
             'sf_last_entry_import_sync_date',
         )
 
 
-class SalesforcePriceBoookEntryMapping(orm.Model):
+class SalesforcePriceBoookEntryMapping(models.Model):
     """Configuration between currency and pricelist version"""
 
     _name = 'connector.salesforce.pricebook.entry.mapping'
 
-    _columns = {
-        'currency_id': fields.many2one(
-            'res.currency',
-            'Currency',
-            required=True,
-        ),
-        'pricelist_version_id': fields.many2one(
-            'product.pricelist.version',
-            'Price list version',
-            required=True,
-        ),
-        'backend_id': fields.many2one(
-            'connector.salesforce.backend',
-            'Salesforce Backend',
-            required=True,
-        )
-
-    }
+    currency_id = fields.Many2one(
+        'res.currency',
+        'Currency',
+        required=True,
+    )
+    pricelist_version_id = fields.Many2one(
+        'product.pricelist.version',
+        'Price list version',
+        required=True,
+    )
+    backend_id = fields.Many2one(
+        'connector.salesforce.backend',
+        'Salesforce Backend',
+        required=True,
+    )
