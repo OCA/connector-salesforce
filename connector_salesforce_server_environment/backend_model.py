@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Nicolas Bessi
-#    Copyright 2013 Camptocamp SA
+#    Copyright 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,12 +20,12 @@
 ##############################################################################
 from collections import namedtuple
 from openerp.addons.server_environment import serv_config
-from openerp.osv import orm, fields
+from openerp import models, fields
 
 AuthField = namedtuple('AuthField', ['name', 'is_mandatory'])
 
 
-class salesforce_backend(orm.Model):
+class salesforce_backend(models.Model):
     """Use server env. to manage auth parameters"""
 
     def _get_auth_columns(self):
@@ -35,9 +35,8 @@ class salesforce_backend(orm.Model):
             AuthField('sandbox', True),
         ]
 
-    def _get_env_auth_data(self, cr, uid, ids, fields, args, context=None):
-        res = {}
-        for backend in self.browse(cr, uid, ids, context=context):
+    def _get_env_auth_data(self):
+        for backend in self:
             section_data = {}
             section_name = "salesforce_auth_%s" % backend.name
             if not serv_config.has_section(section_name):
@@ -61,31 +60,22 @@ class salesforce_backend(orm.Model):
                     section_data[col.name] = serv_config._boolean_states[
                         section_data[col.name]
                     ]
-            res[backend.id] = section_data
-        return res
+                for key, value in section_data.iteritems:
+                    setattr(backend, key, value)
 
     _inherit = "connector.salesforce.backend"
 
-    _columns = {
+    authentication_method = fields.Char(
+        compute='_get_env_auth_data',
+        string='Authentication Method',
+    )
 
-        'authentication_method': fields.function(
-            _get_env_auth_data,
-            string='Authentication Method',
-            multi='authentication_method',
-            type='char'
-        ),
+    url = fields.Char(
+        compute='_get_env_auth_data',
+        string='URL',
+    ),
 
-        'url': fields.function(
-            _get_env_auth_data,
-            string='URL',
-            multi='url',
-            type='char'
-        ),
-
-        'sandbox': fields.function(
-            _get_env_auth_data,
-            string='Connect on sandbox instance',
-            multi='sandbox',
-            type='boolean',
-        ),
-    }
+    sandbox = fields.Boolean(
+        compute='_get_env_auth_data',
+        string='Connect on sandbox instance',
+    ),
