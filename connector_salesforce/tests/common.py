@@ -48,7 +48,7 @@ class CommonTest(test_common.TransactionCase):
                  'consumer_code': 'Dummy',
                  'consumer_token': 'Dummy',
                  'consumer_key': 'Dummy',
-                 'sf_shop_id': 1,
+                 'sf_sales_team_id': 1,
                  'consumer_refresh_token': 'Dummy'}
             )
         return backend

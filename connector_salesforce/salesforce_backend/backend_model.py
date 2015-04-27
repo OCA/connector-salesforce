@@ -318,7 +318,7 @@ class SalesforceBackend(models.Model):
         :rtype: str
         """
         assert mode in ('direct', 'delay'), "Invalid mode"
-        import_start_time = fields.datetime.now()
+        import_start_time = fields.Datetime.now()
         session = csession.ConnectorSession(
             self.env.cr,
             self.env.uid,
@@ -363,7 +363,7 @@ class SalesforceBackend(models.Model):
             self.env.uid,
             self.env.context
         )
-        export_start_time = fields.datetime.now()
+        export_start_time = fields.Datetime.now()
         date = getattr(self, date_field, False) if full is False else False
         if mode == 'direct':
             batch_export(

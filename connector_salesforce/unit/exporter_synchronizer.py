@@ -218,8 +218,8 @@ class SalesforceBatchExportSynchronizer(ExportSynchronizer):
         :param date: Odoo date string to do past lookup
         :type date: str
         """
-        for binding_id in self.get_binding_ids_to_export(date):
-            self._export_record(binding_id)
+        for binding in self.get_binding_ids_to_export(date):
+            self._export_record(binding.id)
 
     def _export_record(self, binding_id):
         """ Export a record directly or delay the export of the record.

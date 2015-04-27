@@ -62,16 +62,13 @@ class SalesforceOpportunityImporter(SalesforceImportSynchronizer):
             self.salesforce_record['AccountId']
         )
 
-    def _after_import(self, binding_id):
+    def _after_import(self, binding):
         """Hook called after Salesforce opportunity import
         To automatically trigger opportunity items import
         """
-        record = self.session.env[self._model_name].browse(
-            self._model_name,
-            binding_id,
-        )
+        binding.ensure_one()
         items_to_import = self.backend_adapter.get_opportunity_items_ids(
-            record.salesforce_id
+            binding.salesforce_id
         )
         for item_id in items_to_import:
             import_record(
@@ -193,18 +190,15 @@ class SalesforceOpportunityMapper(PriceMapper):
             raise MappingError(
                 'No Account provided in Opportunity %s' % record
             )
-        account_binder = self.get_connector_unit_for_model(
+        account_binder = self.unit_for(
             SalesforceBinder,
             model='connector.salesforce.account'
         )
-        account_id = account_binder.to_openerp(record['AccountId'])
-        if not account_id:
+        account = account_binder.to_openerp(record['AccountId'])
+        if not account:
             raise MappingError(
                 'Account %s does not exist' % record['AccountId']
             )
-        account = self.session.env['connector.salesforce.account'].browse(
-            account_id
-        )
         partner_shipping_id = account.openerp_id.id
         if account.sf_shipping_partner_id:
             partner_shipping_id = account.sf_shipping_partner_id.id
@@ -216,8 +210,8 @@ class SalesforceOpportunityMapper(PriceMapper):
 
     @only_create
     @mapping
-    def shop_id(self, record):
-        return {'shop_id': self.backend_record.sf_shop_id.id}
+    def sales_team_id(self, record):
+        return {'section_id': self.backend_record.sf_sales_team_id.id}
 
     def finalize(self, map_record, values):
         """Apply required on change on generated SO"""
@@ -258,7 +252,7 @@ class SalesforceOpportunityLineItemImporter(SalesforceImportSynchronizer):
         assert self.salesforce_record
         if not self.salesforce_record.get('Product2Id'):
             return
-        product_binder = self.get_connector_unit_for_model(
+        product_binder = self.unit_for(
             SalesforceBinder,
             model='connector.salesforce.product'
         )
@@ -320,20 +314,17 @@ class SalesforceOpportunityLineItemMapper(PriceMapper):
         sf_product_uuid = backend_adapter._get_products(record['Id'])
         if not sf_product_uuid:
             return {'product_id': False}
-        product_binder = self.get_connector_unit_for_model(
+        product_binder = self.unit_for(
             SalesforceBinder,
             model='connector.salesforce.product'
         )
-        bind_product_id = product_binder.to_openerp(
+        bind_product = product_binder.to_openerp(
             sf_product_uuid[0]
         )
-        if not bind_product_id:
+        if not bind_product:
             raise MappingError(
                 'Product is not available in ERP for record %s' % record
             )
-        bind_product = self.session.env['connector.salesforce.product'].browse(
-            bind_product_id
-        )
         return {'product_id': bind_product.openerp_id.id}
 
     @mapping
@@ -358,21 +349,18 @@ class SalesforceOpportunityLineItemMapper(PriceMapper):
             raise MappingError(
                 'No OpportunityId for record %s' % record
             )
-        opportunity_binder = self.get_connector_unit_for_model(
+        opportunity_binder = self.unit_for(
             SalesforceBinder,
             model='connector.salesforce.opportunity'
         )
-        bind_opportunity_id = opportunity_binder.to_openerp(
+        bind_opportunity = opportunity_binder.to_openerp(
             sf_opportunity_uuid
         )
-        if not bind_opportunity_id:
+        if not bind_opportunity:
             raise MappingError(
                 'No Opportunity for item %s' % record
             )
-        record = self.session.env['connector.salesforce.opportunity'].browse(
-            bind_opportunity_id
-        )
-        return {'order_id': record.openerp_id.id}
+        return {'order_id': bind_opportunity.openerp_id.id}
 
     def finalize(self, map_record, values):
         """Call afer item mapping to call the on change on

@@ -44,7 +44,7 @@ class SalesforceContactImporter(SalesforceImportSynchronizer):
         assert self.salesforce_record
         if not self.salesforce_record['AccountId']:
             return
-        account_binder = self.get_connector_unit_for_model(
+        account_binder = self.unit_for(
             SalesforceBinder,
             model='connector.salesforce.account'
         )
@@ -135,7 +135,7 @@ class SalesforceContactMapper(AddressMapper):
 
     @mapping
     def parent_id(self, record):
-        parent_binder = self.get_connector_unit_for_model(
+        parent_binder = self.unit_for(
             SalesforceBinder,
             model='connector.salesforce.account',
         )

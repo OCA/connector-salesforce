@@ -33,7 +33,7 @@
           into a salesOrder
           </div>
           <group colspan="4">
-            <field name="sf_shop_id"/>
+            <field name="sf_sales_team_id"/>
           </group>
         </page>
 

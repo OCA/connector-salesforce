@@ -22,4 +22,4 @@ from . import test_adapter
 from . import test_account_import
 from . import test_contact_import
 from . import test_price_book_entry_import
-# from . import test_opportunity_import
+from . import test_opportunity_import

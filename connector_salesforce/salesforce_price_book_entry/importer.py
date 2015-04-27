@@ -58,7 +58,7 @@ class SalesforcePriceBookEntryImporter(SalesforceImportSynchronizer):
         To ensure coherence with porduct and import
         it if required"""
         assert self.salesforce_record
-        product_binder = self.get_connector_unit_for_model(
+        product_binder = self.unit_for(
             SalesforceBinder,
             model='connector.salesforce.product'
         )
@@ -139,7 +139,7 @@ class SalesforcePriceBookEntryMapper(PriceMapper):
                 'No product available '
                 'for salesforce record %s ' % record
             )
-        product_binder = self.get_connector_unit_for_model(
+        product_binder = self.unit_for(
             SalesforceBinder,
             model='connector.salesforce.product',
         )

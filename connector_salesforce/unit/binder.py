@@ -19,7 +19,7 @@
 #
 ##############################################################################
 from __future__ import absolute_import
-from openerp.osv import fields
+from openerp import fields
 from openerp.addons.connector.exception import ManyIDSInBackend
 from openerp.addons.connector.connector import Binder
 from ..backend import salesforce_backend
@@ -106,7 +106,7 @@ class SalesforceBinder(Binder):
         :type binding: binding record
         """
         # avoid to trigger the export when we modify the `odbc code`
-        now_fmt = fields.datetime.now()
+        now_fmt = fields.Datetime.now()
         binding.with_context(connector_no_export=True).write(
             {'salesforce_id': salesforce_id,
              'salesforce_sync_date': now_fmt},

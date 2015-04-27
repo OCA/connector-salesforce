@@ -29,14 +29,14 @@ class SalesforceOpportunityBackend(models.Model):
         'Last Opportunity Import Date'
     )
 
-    sf_shop_id = fields.Many2one(
-        'sale.shop',
-        'Shop to be used',
+    sf_sales_team_id = fields.Many2one(
+        'crm.case.section',
+        'Sales team to be used',
         required=True,
     )
 
     @api.model
-    def import_sf_opportunity(self, cr, uid, ids, context=None):
+    def import_sf_opportunity(self):
         """Run the import of Salesforce opportunites for given backend"""
         self._import(
             'connector.salesforce.opportunity',

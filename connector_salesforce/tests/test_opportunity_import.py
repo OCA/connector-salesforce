@@ -94,7 +94,7 @@ class OpportunityImportTest(CommonTest):
         self.assertEqual(imported.origin, 'A won opportunity')
         self.assertEqual(imported.order_policy, 'manual')
         self.assertEqual(imported.currency_id.name, 'EUR')
-        self.assertEqual(imported.shop_id.id, 1)
+        self.assertEqual(imported.section_id.id, 1)
         self.assertEqual(imported.partner_id.name, 'Main name')
         self.assertEqual(imported.partner_invoice_id.name, 'Main name')
         self.assertEqual(imported.partner_shipping_id.name, 'Main name')
@@ -103,7 +103,6 @@ class OpportunityImportTest(CommonTest):
         self.assertEqual(imported.state, 'draft')
         self.assertEqual(imported.pricelist_id.currency_id.name, 'EUR')
         self.assertEqual(imported.amount_total, 160.0)
-        self.assertEqual(imported.invoice_quantity, u'order')
         self.assertEqual(len(imported.order_line), 1)
 
         order_line = imported.order_line[0]
