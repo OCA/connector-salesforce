@@ -70,8 +70,6 @@ class CommonTest(test_common.TransactionCase):
         return pl_version
 
 
-
-
 @contextmanager
 def mock_simple_salesforce(response_mock):
     """Context manager that will mock the request object used

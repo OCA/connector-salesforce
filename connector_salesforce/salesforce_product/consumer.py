@@ -93,7 +93,7 @@ def create_product_binding(session, model_name, record_id, vals=None):
         if backend.sf_product_master == 'erp':
             session.env[sf_product_model].create(
                 {'backend_id': backend.id,
-                 'openerp_id': record_id}
+                 'openerp_id': record.id}
             )
 
 
@@ -123,13 +123,13 @@ def export_product(session, model_name, record_id, vals=None):
             product_binder = conn_env.get_connector_unit(
                 SalesforceBinder
             )
-            sf_prod_id = product_binder.to_binding(
+            sf_prod = product_binder.to_binding(
                 record_id
             )
-            if sf_prod_id:
+            if sf_prod:
                 export_sf_product(
                     session,
                     sf_product_model,
-                    sf_prod_id,
+                    sf_prod.id,
                     vals=vals
                 )
