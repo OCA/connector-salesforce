@@ -247,7 +247,7 @@ class SalesforceBackend(models.Model):
         )
         return oauth2_handler
 
-    @api.model
+    @api.multi
     def redirect_to_validation_url(self):
         """Retrieve Oauth2 authorization URL"""
         self.ensure_one()
@@ -265,8 +265,17 @@ class SalesforceBackend(models.Model):
             'url': auth_url
         }
 
-    @api.model
-    def refresh_token(self, cr, uid, ids, context=None):
+    @api.multi
+    def get_token(self):
+        """Refresh current backend Oauth2 token
+        using the Salesforce refresh token
+        """
+        self.ensure_one()
+        self._get_token(refresh=True)
+        return {}
+
+    @api.multi
+    def refresh_token(self):
         """Refresh current backend Oauth2 token
         using the Salesforce refresh token
         """

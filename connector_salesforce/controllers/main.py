@@ -31,7 +31,7 @@ class SalesforceOAuthController(http.Controller):
     into `connector.salesforce.backend`
     """
 
-    @http.route('/salesforce', type='http', auth='none')
+    @http.route('/salesforce/oauth', type='http', auth='none')
     def oauth(self, req, **kwargs):
         """Write Salesforce authorization
         Token in given backend.

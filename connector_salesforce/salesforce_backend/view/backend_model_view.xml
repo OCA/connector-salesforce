@@ -24,6 +24,13 @@
                           string="Authorize Odoo in Salesforce"
                           type="object"
                           attrs="{'invisible': [('authentication_method', '!=', 'oauth2')]}"/>
+
+                  <button name="get_token"
+                          class="oe_highlight"
+                          string="Manually get token if authorization failed"
+                          type="object"
+                          attrs="{'invisible': [('authentication_method', '!=', 'oauth2')]}"/>
+
                   <button name="refresh_token"
                           class="oe_highlight"
                           string="Refresh token"
