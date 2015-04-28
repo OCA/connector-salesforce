@@ -86,7 +86,9 @@ class AddressMapper(ImportMapper):
             )
         if title:
             return title.id
-        return self.model.create({'name': title_name}).id
+        return self.session.env['res.partner.title'].create(
+            {'name': title_name}
+        ).id
 
 
 class PriceMapper(ImportMapper):
