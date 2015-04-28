@@ -173,7 +173,8 @@ class SalesforceOpportunityMapper(PriceMapper):
                     self.backend_record.name
                 )
             )
-        price_list_version_record = self.session.env['product.pricelist.version'].browse(
+        model = self.session.env['product.pricelist.version']
+        price_list_version_record = model.browse(
             price_list_version_id
         )
         return {'pricelist_id': price_list_version_record.pricelist_id.id}
