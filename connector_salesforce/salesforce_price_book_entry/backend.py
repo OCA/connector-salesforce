@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields
+from openerp import models, fields, api
 
 
 class SalesforcePriceBookEntryBackend(models.Model):
@@ -34,6 +34,7 @@ class SalesforcePriceBookEntryBackend(models.Model):
         string='Price Book Entries mapping'
     )
 
+    @api.multi
     def import_sf_entry(self):
         """Run the import of Salesforce pricebook entries for given backend"""
         self._import(
@@ -42,6 +43,7 @@ class SalesforcePriceBookEntryBackend(models.Model):
             'sf_last_entry_import_sync_date',
         )
 
+    @api.multi
     def import_sf_entry_delay(self):
         """Run the import of Salesforce pricebook entries for given backend
         using jobs"""

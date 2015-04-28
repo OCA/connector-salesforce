@@ -48,6 +48,7 @@ class SalesforceProductBackend(models.Model):
         string='Product Type to SF Family Mapping'
     )
 
+    @api.multi
     def import_sf_product(self):
         """Run the import of Salesforce products for given backend"""
         self._import(
@@ -57,6 +58,7 @@ class SalesforceProductBackend(models.Model):
         )
         return True
 
+    @api.multi
     def import_sf_product_delay(self):
         """Run the import of Salesforce products for given backend
         using jobs"""
@@ -67,6 +69,7 @@ class SalesforceProductBackend(models.Model):
         )
         return True
 
+    @api.multi
     def export_sf_product(self):
         """Run the export of Salesforce products for given backend"""
         self._export(
@@ -76,6 +79,7 @@ class SalesforceProductBackend(models.Model):
         )
         return True
 
+    @api.multi
     def export_sf_product_delay(self):
         """Run the import of Salesforce products for given backend
         using jobs"""

@@ -35,7 +35,7 @@ class SalesforceOpportunityBackend(models.Model):
         required=True,
     )
 
-    @api.model
+    @api.multi
     def import_sf_opportunity(self):
         """Run the import of Salesforce opportunites for given backend"""
         self._import(
@@ -44,7 +44,7 @@ class SalesforceOpportunityBackend(models.Model):
             'sf_last_opportunity_import_sync_date',
         )
 
-    @api.model
+    @api.multi
     def import_sf_opportunity_delay(self):
         """Run the import of Salesforce opportunites for given backend
         using jobs

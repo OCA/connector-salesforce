@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields
+from openerp import models, fields, api
 
 
 class SalesforceAccountBackend(models.Model):
@@ -29,6 +29,7 @@ class SalesforceAccountBackend(models.Model):
         'Last Account Import Date'
     )
 
+    @api.multi
     def import_sf_account(self):
         """Run the import of Salesforce account for given backend"""
         self._import(
@@ -37,6 +38,7 @@ class SalesforceAccountBackend(models.Model):
             'sf_last_account_import_sync_date',
         )
 
+    @api.multi
     def import_sf_account_delay(self):
         """Run the import of Salesforce account for given backend using jobs"""
         self._import(
