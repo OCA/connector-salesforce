@@ -39,8 +39,8 @@ class SalesforceProductExporter(SalesforceExportSynchronizer):
         """Implement predicate that decide if product
         must be deactivated in Odoo
         """
-        assert self.binding_record
-        if not self.binding_record.active or not self.binding_record.sale_ok:
+        assert self.binding
+        if not self.binding.active or not self.binding.sale_ok:
             return True
         return False
 
