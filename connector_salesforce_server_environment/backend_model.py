@@ -73,9 +73,9 @@ class salesforce_backend(models.Model):
     url = fields.Char(
         compute='_get_env_auth_data',
         string='URL',
-    ),
+    )
 
     sandbox = fields.Boolean(
         compute='_get_env_auth_data',
         string='Connect on sandbox instance',
-    ),
+    )
