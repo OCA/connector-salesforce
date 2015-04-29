@@ -60,7 +60,7 @@ class salesforce_backend(models.Model):
                     section_data[col.name] = serv_config._boolean_states[
                         section_data[col.name]
                     ]
-                for key, value in section_data.iteritems:
+                for key, value in section_data.iteritems():
                     setattr(backend, key, value)
 
     _inherit = "connector.salesforce.backend"
