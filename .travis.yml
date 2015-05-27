@@ -1,4 +1,9 @@
-sudo: required
+addons:
+  apt:
+    packages:
+      - expect-dev  # provides unbuffer utility
+      - python-lxml # because pip installation is slow
+
 language: python
 python:
   - "2.7"
@@ -16,8 +21,12 @@ install:
   - git clone https://github.com/OCA/connector ${HOME}/connector -b ${VERSION}
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
-  - travis_install_nightly
   - ln -s ${HOME}/server-tools/server_environment_files_sample ${HOME}/server-tools/server_environment_files
+  - travis_install_nightly ${VERSION}
+  - pip install coveralls flake8
+  - pip install magento
+  - pip install beautifulsoup4
+  - git clone https://github.com/OCA/connector ${HOME}/connector -b ${VERSION}
   - printf '[options]\n\nrunning_env = dev' > ${HOME}/.openerp_serverrc
 
 script:
