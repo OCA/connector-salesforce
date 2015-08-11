@@ -42,7 +42,7 @@
                   <p>In order to use Oauth2 you have to add a remote application in Salesforce
                   and enable Oauth login.</p>
 
-                  <p> The created remote access app must have following parameters:
+                  <p> The created remote access app must have the following parameters:
                   Permitted Users --> All users may self-authorize<br/>
                   Callback URL --> public_Odoo_url/salesforce/oauth<br/>
 
