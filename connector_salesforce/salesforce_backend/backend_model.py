@@ -188,6 +188,7 @@ class SalesforceBackend(models.Model):
         when validating configuration"""
         return True
 
+    @api.multi
     def _validate_configuration(self):
         """Ensure configuration on backend record is correct
 
