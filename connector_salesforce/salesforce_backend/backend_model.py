@@ -45,7 +45,7 @@ class SalesforceBackend(models.Model):
     Callback URL --> public_odoo_url/salesforce/oauth
 
 
-    Once done you have to manage your app ensure the
+    Once done you have to manage your app and ensure the
     `Refresh token is valid until revoked` parameter is set.
 
     The following authentication method are still exprimental
