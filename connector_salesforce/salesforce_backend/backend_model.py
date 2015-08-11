@@ -48,7 +48,7 @@ class SalesforceBackend(models.Model):
     Once done you have to manage your app and ensure the
     `Refresh token is valid until revoked` parameter is set.
 
-    The following authentication method are still exprimental
+    The following authentication method is still exprimental
 
     User Password flow
     ------------------
