@@ -105,7 +105,7 @@ class SalesforceAccountMapper(AddressMapper, PriceMapper):
 
     def map_shipping_address(self, record, binding=None):
         """Manage the Salesforce account shipping address
-        If no shipping address exist in Odoo it is created.
+        If no shipping address exists in Odoo it is created.
         If a shipping address already exists we update it.
         If no shipping data are present and a shipping adress exists
         it will be unactivated
