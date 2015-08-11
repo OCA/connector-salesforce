@@ -19,8 +19,8 @@
 ##############################################################################
 {'name': 'Salesforce Connector',
  'version': '0.1',
- 'author': 'Camptocamp',
- 'maintainer': 'Camptocamp',
+ 'author': 'Camptocamp,Odoo Community Association (OCA)',
+ 'maintainer': 'Camptocamp,Odoo Community Association (OCA)',
  'category': 'Connector',
  'complexity': "normal",
  'depends': ['connector', 'sale', 'product'],
