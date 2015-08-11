@@ -5,7 +5,7 @@
       <field name="name">Salesforce backend form</field>
       <field name="model">connector.salesforce.backend</field>
       <field name="arch" type="xml">
-        <form version="7.0" string="Salesforce Backend">
+        <form string="Salesforce Backend">
           <header>
           </header>
           <sheet>
@@ -110,7 +110,7 @@
       <field name="name">Connector Salesforce list view</field>
       <field name="model">connector.salesforce.backend</field>
       <field name="arch" type="xml">
-        <tree version="7.0" string="Salesforce Backend">
+        <tree string="Salesforce Backend">
           <field name="name"/>
         </tree>
       </field>
