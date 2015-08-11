@@ -31,7 +31,7 @@ class SalesforceContact(models.Model):
     openerp_id = fields.Many2one('res.partner',
                                  string='Partner',
                                  required=True,
-                                 select=True,
+                                 index=True,
                                  ondelete='restrict')
 
     _sql_constraints = [

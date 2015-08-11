@@ -31,7 +31,7 @@ class SalesforceOpportunity(models.Model):
     openerp_id = fields.Many2one('sale.order',
                                  string='Sale Order Line',
                                  required=True,
-                                 select=True,
+                                 index=True,
                                  ondelete='restrict')
 
     _sql_constraints = [
@@ -51,7 +51,7 @@ class SalesforceOpportunityLineItem(models.Model):
     openerp_id = fields.Many2one('sale.order.line',
                                  string='Sale Order Line',
                                  required=True,
-                                 select=True,
+                                 index=True,
                                  ondelete='restrict')
 
     _sql_constraints = [

@@ -31,7 +31,7 @@ class SalesforcePriceBookEntry(models.Model):
     openerp_id = fields.Many2one('product.pricelist.item',
                                  string='Price Item',
                                  required=True,
-                                 select=True,
+                                 index=True,
                                  ondelete='restrict')
 
     _sql_constraints = [

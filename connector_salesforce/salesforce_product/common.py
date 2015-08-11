@@ -31,7 +31,7 @@ class SalesforceProduct(models.Model):
     openerp_id = fields.Many2one('product.product',
                                  string='Product',
                                  required=True,
-                                 select=True,
+                                 index=True,
                                  ondelete='restrict')
 
     _sql_constraints = [
