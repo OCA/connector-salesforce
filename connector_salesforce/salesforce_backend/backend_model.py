@@ -163,7 +163,7 @@ class SalesforceBackend(models.Model):
         :param param_name: name of parameter to validate
         :type param_name: str
 
-        :return: True is parameter is set or raise an exception
+        :return: True if parameter is set or raise an exception
         :rtype: bool
         """
         self.ensure_one()
