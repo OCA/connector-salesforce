@@ -132,7 +132,6 @@ class SalesforceAccountMapper(AddressMapper, PriceMapper):
                     self._prepare_shipp_addresse_data(record, current_partner)
                 ).id
         else:
-            shipp_id = False
             if current_partner.sf_shipping_partner_id:
                 self.session.env['res.partner'].write(
                     [current_partner.sf_shipping_partner_id.id],
