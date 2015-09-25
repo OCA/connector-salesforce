@@ -6,6 +6,8 @@ Odoo Connector Salesforce Modules
 
 WRITEME
 
-
 Documentation:
 http://www.odoo-connector.com
+
+[//]: # (addons)
+[//]: # (end addons)
