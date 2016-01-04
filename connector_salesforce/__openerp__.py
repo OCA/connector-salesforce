@@ -2,6 +2,7 @@
 ##############################################################################
 #
 #    Author: Nicolas Bessi
+#    Copyright 2014-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,13 +19,14 @@
 #
 ##############################################################################
 {'name': 'Salesforce Connector',
- 'version': '0.1',
+ 'version': '7.0.1.0.0',
  'author': 'Camptocamp',
- 'maintainer': 'Camptocamp',
+ 'maintainer': 'Camptocamp,Odoo Community Association (OCA)',
  'category': 'Connector',
  'complexity': "normal",
  'depends': ['connector', 'sale', 'product'],
  'summary': """Provides core import export interfaces with Salesforce.""",
+ 'description': """see README.rst""",
  'data': [
      'salesforce_backend/view/backend_model_view.xml',
      'salesforce_account/view/backend_view.xml',

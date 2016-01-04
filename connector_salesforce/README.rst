@@ -1,3 +1,8 @@
+.. image:: https://img.shields.io/badge/licence-AGPL--3-blue.svg
+   :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
+   :alt: License: AGPL-3
+
+====================
 Salesforce Connector
 ====================
 
@@ -99,7 +104,7 @@ set required fields.
 Configure Import Export with Salesforce
 ---------------------------------------
 
-Now your backend is set and open in the `Import/Export Configuration` pane
+Now your backend is set and open in the `Import/Export Configuration` panel
 
 Products Synchronisation
 ************************
@@ -216,6 +221,11 @@ Now the Opportunity can be sync with Odoo.
 
  * Import won opportunity from Odoo. The import of  Opportunity using will automatically trigger all other synchronization. Indeed, for instance, if you try to import an opportunity but the partner (= SF account) does not exist in Odoo then the connector will launch a direct (no job creation) import of this specific account. The same goes for the other missing assets like product, price, etc.
 
+.. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
+   :alt: Try me on Runbot
+   :target: https://runbot.odoo-community.org/runbot/216/7.0
+
+
 Known issues / Roadmap
 ======================
 
@@ -228,9 +238,30 @@ Known issues / Roadmap
  - Support the usecase of deactivating a deleted binding
  - Battle test password flow and fix it
 
+Bug Tracker
+===========
+
+Bugs are tracked on `GitHub Issues
+<https://github.com/OCA/connector-salesforce/issues>`_. In case of trouble, please
+check there if your issue has already been reported. If you spotted it first,
+help us smashing it by providing a detailed and welcomed `feedback
+<https://github.com/OCA/
+connector-salesforce/issues/new?body=module:%20
+connector_salesforce%0Aversion:%20
+7.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+
 Credits
 =======
-* Nicolas Bessi
+
+Images
+------
+
+* Odoo Community Association: `Icon <https://github.com/OCA/maintainer-tools/blob/master/template/module/static/description/icon.svg>`_.
+
+Contributors
+------------
+
+* Nicolas Bessi <nicolas.bessi@camptocamp.com>
 
 
 Maintainer
@@ -242,6 +273,8 @@ Maintainer
 
 This module is maintained by the OCA.
 
-OCA, the Odoo Community Association, is a nonprofit organization whose mission is to support the collaborative development of Odoo features and promote its widespread use.
+OCA, the Odoo Community Association, is a nonprofit organization whose mission
+is to support the collaborative development of Odoo features and promote its
+widespread use.
 
 To contribute to this module, please visit http://odoo-community.org.
