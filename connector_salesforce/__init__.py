@@ -19,7 +19,6 @@
 #
 ##############################################################################
 from . import unit
-from . import connector
 from . import salesforce_backend
 from . import controllers
 from . import lib
