@@ -1,23 +1,7 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Author: Nicolas Bessi
-#    Copyright 2014 Camptocamp SA
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# Copyright 2014-2016 Camptocamp SA
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
 from __future__ import absolute_import
 import simplejson
 from ..lib.oauth2_utils import SalesforceOauth2MAnager
@@ -32,37 +16,6 @@ class SalesforceBackend(models.Model):
     """Salesforce backend
 
     Please refer to connector backend documentation
-
-    There are 2 supported ways to access a Salesforce instance
-    Oauth2 flow
-    -----------
-    In order to use it you have to add a remote application in Salesforce
-    and enable Oauth login.
-
-    The created remote access app must have following parameters:
-
-    Permitted Users -->	All users may self-authorize
-    Callback URL --> public_odoo_url/salesforce/oauth
-
-
-    Once done you have to manage your app and ensure the
-    `Refresh token is valid until revoked` parameter is set.
-
-    The following authentication method is still exprimental
-
-    User Password flow
-    ------------------
-    This flow allows a user to connect to api using SOAP access
-    in order to get a token. This approach is simpler but less secure
-    The first step is to pass the domain of your Salesforce instance
-    and an access token straight in Odoo backend.
-
-    You must have the full URL e.g (https://na1.salesforce.com)
-    of your instance.
-
-    There are also two means of authentication:
-    - Using username, password and security token
-    - Using IP filtering, username, password and organizationId
     """
 
     _name = "connector.salesforce.backend"
@@ -178,7 +131,7 @@ class SalesforceBackend(models.Model):
             else:
                 field_name = param_name
             raise exceptions.Warning(
-                _('Configuration %s is mandatory with '
+                _('Configuration %s is mandatory for '
                   'current authentication method') % field_name
             )
         return True

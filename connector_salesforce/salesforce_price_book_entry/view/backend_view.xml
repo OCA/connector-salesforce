@@ -2,7 +2,7 @@
 <openerp>
   <data>
     <record id="add_import_pricebookentry_button" model="ir.ui.view">
-      <field name="name">add import price book entry button</field>
+      <field name="name">Add import SF price book entry button</field>
       <field name="model">connector.salesforce.backend</field>
       <field name="inherit_id" ref="connector_salesforce_backend_form"/>
       <field name="priority" eval="20"/>
@@ -32,8 +32,8 @@
         </page>
         <page string="Import/Export Configuration" position="inside">
           <separator string="Product Book Entry Configuration"/>
-          <div>Select in wich ERP pricelist version must the price book entries be stored. <br/>
-          You have to choose one price list version per SalesForce currency
+          <div>Select which ERP pricelist version must be used to store the price book entries. <br/>
+          You have to select one price list version per SalesForce currency
           </div>
           <group colspan="4">
             <field name="sf_entry_mapping_ids"

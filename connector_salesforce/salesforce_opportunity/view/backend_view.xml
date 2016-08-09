@@ -2,7 +2,7 @@
 <openerp>
   <data>
     <record id="add_import_opportunity_button" model="ir.ui.view">
-      <field name="name">add import opportunity button</field>
+      <field name="name">Add import SF opportunity button</field>
       <field name="model">connector.salesforce.backend</field>
       <field name="inherit_id" ref="connector_salesforce_backend_form"/>
       <field name="priority" eval="22"/>
@@ -29,8 +29,8 @@
         </page>
         <page string="Import/Export Configuration" position="inside">
           <separator string="Opportunity configuration"/>
-          <div>Select in wich ERP saleshop must be used when importing a Quotation
-          into a salesOrder
+          <div>Select which ERP warehouse must be used when importing a Quotation
+          into a sales order
           </div>
           <group colspan="4">
             <field name="sf_sales_team_id"/>

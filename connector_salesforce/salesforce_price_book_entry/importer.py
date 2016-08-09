@@ -1,23 +1,7 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Author: Nicolas Bessi
-#    Copyright 2015 Camptocamp SA
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# Copyright 2014-2016 Camptocamp SA
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
 import logging
 from openerp.addons.connector.exception import MappingError
 from openerp.addons.connector.unit.mapper import mapping, only_create
@@ -116,7 +100,7 @@ class SalesforcePriceBookEntryMapper(PriceMapper):
         price_list_version_id = mapping.get(currency_id)
         if not price_list_version_id:
             raise MappingError(
-                'No priceliste version configuration done for '
+                'No pricelist version configuration done for '
                 'currency %s and backend %s' % (
                     record.get('CurrencyIsoCode'),
                     self.backend_record.name
@@ -149,6 +133,7 @@ class SalesforcePriceBookEntryMapper(PriceMapper):
         )
         if not product:
             raise MappingError(
-                'Product is not available in ERP for record %s' % record
+                'No product available '
+                'for salesforce record %s ' % record
             )
         return {'product_id': product.id}

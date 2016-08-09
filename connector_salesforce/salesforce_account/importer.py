@@ -1,23 +1,7 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Author: Nicolas Bessi
-#    Copyright 2014 Camptocamp SA
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# Copyright 2014-2016 Camptocamp SA
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
 import logging
 from openerp.addons.connector.exception import MappingError
 from openerp.addons.connector.unit.mapper import mapping, only_create
@@ -82,7 +66,7 @@ class SalesforceAccountMapper(AddressMapper, PriceMapper):
         ('VATNumber__c', 'vat'),
     ]
 
-    def _prepare_shipp_addresse_data(self, record, partner_record):
+    def _prepare_shipping_address_data(self, record, partner_record):
         """Convert shipping address information to res.partner data dict"""
         data = {
             'name': record['Name'],
@@ -113,7 +97,7 @@ class SalesforceAccountMapper(AddressMapper, PriceMapper):
         """
         if not binding:
             raise MappingError(
-                'No binding when mapping shipping address'
+                'No binding found when mapping shipping address'
             )
         binding.ensure_one()
         current_partner = binding
@@ -125,11 +109,13 @@ class SalesforceAccountMapper(AddressMapper, PriceMapper):
                 shipp_id = current_partner.sf_shipping_partner_id.id
                 self.session.env['res.partner'].write(
                     [shipp_id],
-                    self._prepare_shipp_addresse_data(record, current_partner)
+                    self._prepare_shipping_address_data(record,
+                                                        current_partner)
                 )
             else:
                 shipp_id = self.session.env['res.partner'].create(
-                    self._prepare_shipp_addresse_data(record, current_partner)
+                    self._prepare_shipping_address_data(record,
+                                                        current_partner)
                 ).id
         else:
             if current_partner.sf_shipping_partner_id:

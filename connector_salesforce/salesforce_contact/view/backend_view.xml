@@ -2,7 +2,7 @@
 <openerp>
   <data>
     <record id="add_import_contact_button" model="ir.ui.view">
-      <field name="name">add import contact button</field>
+      <field name="name">Add import contact button</field>
       <field name="model">connector.salesforce.backend</field>
       <field name="inherit_id" ref="connector_salesforce_backend_form"/>
       <field name="priority" eval="17"/>

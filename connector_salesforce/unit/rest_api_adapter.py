@@ -1,23 +1,7 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Author: Nicolas Bessi
-#    Copyright 2014 Camptocamp SA
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# Copyright 2014-2016 Camptocamp SA
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
 from __future__ import unicode_literals
 from contextlib import contextmanager
 from functools import wraps
@@ -47,7 +31,7 @@ def with_retry_on_expiration(fun):
         try:
             return fun(*args, **kwargs)
         except (SalesforceExpiredSession, SalesforceSessionExpiredError):
-            msg = "Session expired retrying"
+            msg = "Session expired. Retrying."
             _logger.warning(msg)
             return fun(*args, **kwargs)
     return retry
@@ -64,15 +48,15 @@ def error_handler(backend_record):
         yield
     except SalesforceAuthenticationFailed:
         raise connector_exception.SalesforceSecurityError(
-            'An authentication error occur please validate your credentials '
-            'in backend'
+            'Authentication error: please double check your credentials '
+            'in backend.'
         )
     except SalesforceExpiredSession:
         if backend_record.authentication_method == 'oauth2':
             backend_record.refresh_token()
         raise SalesforceSessionExpiredError(
-            'Token expired and was refreshed job will be retried. '
-            'In case of direct action (no job) it must be restarted manually'
+            'Token has expired and was refreshed: the job will be retried. '
+            'In case of direct action (no job), it must be manually restarted.'
         )
     except SalesforceError as exc:
         raise connector_exception.SalesforceResponseError(exc)
@@ -162,7 +146,7 @@ class SalesforceRestAdapter(BackendAdapter):
         elif self.backend_record.authentication_method == 'ip_filtering':
             return self._sf_from_organization_id()
         else:
-            raise NotImplementedError('Authentication method not supported')
+            raise NotImplementedError('Authentication method not supported.')
 
     def get_updated(self, start_datetime_str=None, end_datetime_str=None):
         """Get a list of updated record on Salesforce using REST API

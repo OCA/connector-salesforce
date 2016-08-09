@@ -1,23 +1,7 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Author: Nicolas Bessi
-#    Copyright 2014 Camptocamp SA
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# Copyright 2014-2016 Camptocamp SA
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
 from openerp.addons.connector.unit.mapper import ImportMapper
 from openerp.addons.connector.exception import MappingError
 
@@ -58,7 +42,8 @@ class AddressMapper(ImportMapper):
         # we tolerate the fact that country is null
         if len(country) > 1:
             raise MappingError(
-                'Many countries found to be linked with partner %s' % record
+                'Multiple countries found to be linked '
+                'with partner %s' % record
             )
 
         if not country:
@@ -82,7 +67,7 @@ class AddressMapper(ImportMapper):
         )
         if len(title) > 1:
             raise MappingError(
-                'Many titles found to be linked with partner %s' % record
+                'Multiple titles found to be linked with partner %s' % record
             )
         if title:
             return title.id
@@ -94,11 +79,11 @@ class AddressMapper(ImportMapper):
 class PriceMapper(ImportMapper):
 
     def get_currency_id(self, record):
-        """Mapp the Odoo currency from the Salesforce currency code"""
+        """Map the Odoo currency from the Salesforce currency code"""
         currency_iso_code = record.get('CurrencyIsoCode')
         if not currency_iso_code:
             raise MappingError(
-                'No currency Given for: %s' % record
+                'No currency found for: %s' % record
             )
         currency = self.session.env['res.currency'].search(
             [('name', '=ilike', currency_iso_code)]
@@ -106,13 +91,13 @@ class PriceMapper(ImportMapper):
         if not currency:
             raise MappingError(
                 'No %s currency available. '
-                'Please create one manually' % currency_iso_code
+                'Please create one by hand' % currency_iso_code
             )
         if len(currency) > 1:
             raise ValueError(
-                'Many Currencies found for %s. '
-                'Please ensure your multicompany rules are corrects '
-                'or check that the job is not runned by '
-                'the admin user' % currency_iso_code
+                'Multiple currencies found for %s. '
+                'Please ensure your multicompany rules are correct '
+                'or check that the job is not run by '
+                'the admin user.' % currency_iso_code
             )
         return currency.id

@@ -2,7 +2,7 @@
 <openerp>
   <data>
     <record id="add_salesforce_partner_fields" model="ir.ui.view">
-      <field name="name">add salesforce partner fields</field>
+      <field name="name">Add SF partner fields</field>
       <field name="model">res.partner</field>
       <field name="inherit_id" ref="base.view_partner_form" />
       <field name="arch" type="xml">
@@ -28,7 +28,7 @@
     </record>
 
     <record id="add_salesforce_partner_fields_in_kanban" model="ir.ui.view">
-      <field name="name">add salesforce partner fields in kanban</field>
+      <field name="name">Add SF partner fields in kanban</field>
       <field name="model">res.partner</field>
       <field name="inherit_id" ref="base.res_partner_kanban_view"/>
       <field name="arch" type="xml">

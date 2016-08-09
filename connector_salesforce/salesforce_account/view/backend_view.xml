@@ -2,7 +2,7 @@
 <openerp>
   <data>
     <record id="add_import_account_button" model="ir.ui.view">
-      <field name="name">add import account button</field>
+      <field name="name">Add import SF Account button</field>
       <field name="model">connector.salesforce.backend</field>
       <field name="inherit_id" ref="connector_salesforce_backend_form"/>
       <field name="arch" type="xml">

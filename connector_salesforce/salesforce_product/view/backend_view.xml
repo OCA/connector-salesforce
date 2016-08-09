@@ -2,15 +2,15 @@
 <openerp>
   <data>
     <record id="add_import_product_button" model="ir.ui.view">
-      <field name="name">add import/export product button</field>
+      <field name="name">Add import/export product button</field>
       <field name="model">connector.salesforce.backend</field>
       <field name="inherit_id" ref="connector_salesforce_backend_form"/>
       <field name="priority" eval="18"/>
       <field name="arch" type="xml">
         <page string="Actions" position="inside">
-          <separator string="From Salesforce Product Towards ERP"
+          <separator string="Product: From Salesforce Product to Odoo"
                      attrs="{'invisible': [('sf_product_master', '=', 'erp')]}"/>
-          <separator string="From ERP Towards Salesforce product"
+          <separator string="Product: from Odoo to Salesforce"
                      attrs="{'invisible': [('sf_product_master', '=', 'sf')]}"/>
           <group attrs="{'invisible': [('sf_product_master', '=', 'erp')]}">
             <div>
@@ -37,20 +37,20 @@
               <button name="export_sf_product"
                       class="oe_highlight"
                       type="object"
-                      string="Export of Products"/>
+                      string="Export Products"/>
               <button name="export_sf_product_delay"
                       class="oe_highlight"
                       type="object"
-                      string="Export of Products Using Jobs"/>
+                      string="Export Products Using Jobs"/>
             </div>
             <br/>
           </group>
         </page>
         <page string="Import/Export Configuration" position="inside">
           <separator string="Product Configuration"/>
-          <div>Select the master for the products. <br/>
-          Bidirectional/Conflicts are not managed so <span style="color:red">once set
-          you should NOT modify the master</span>
+          <div>Select the master reference for the products. <br/>
+          Bidirectional/Conflicts are not managed, so <span style="color:red">once set
+          you should NOT modify this setting.</span>
           </div>
           <group>
             <field name="sf_product_master"/>
