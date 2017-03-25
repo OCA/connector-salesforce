@@ -10,6 +10,7 @@ Documentation:
 http://www.odoo-connector.com
 
 [//]: # (addons)
+
 Available addons
 ----------------
 addon | version | summary
