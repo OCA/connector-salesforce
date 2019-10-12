@@ -8,5 +8,3 @@ WRITEME
 
 Documentation:
 http://www.odoo-connector.com
-
-
