@@ -13,9 +13,9 @@ http://www.odoo-connector.com
 
 Available addons
 ----------------
-addon | version | summary
---- | --- | ---
-[connector_salesforce](connector_salesforce/) | 8.0.1.0.0 | Provides core synchronization interfaces with Salesforce.
-[connector_salesforce_server_environment](connector_salesforce_server_environment/) | 8.0.1.0.0 | Connector Salesforce Server Environment
+addon | version | maintainers | summary
+--- | --- | --- | ---
+[connector_salesforce](connector_salesforce/) | 8.0.1.0.0 |  | Provides core synchronization interfaces with Salesforce.
+[connector_salesforce_server_environment](connector_salesforce_server_environment/) | 8.0.1.0.0 |  | Connector Salesforce Server Environment
 
 [//]: # (end addons)
